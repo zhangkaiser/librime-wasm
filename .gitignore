@@ -8,6 +8,10 @@ lib/*
 bin/*
 share/*
 deps/*/*
+!deps/boost/include
+!deps/boost/lib
+!deps/include/*
+!deps/lib/*
 env.bat
 node_modules/
 *~

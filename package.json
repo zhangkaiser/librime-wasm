@@ -9,7 +9,16 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "version": "./bump-version.sh"
+    "version": "./bump-version.sh",
+    "librime": "emmake make librime",
+    "wasm:base": "emcc -std=c++14 -pthread -Wall -Wno-js-compiler -Wno-deprecated-builtins -Wno-deprecated-declarations",
+    "wasm:settings": "npm run wasm:base -- -sASSERTIONS -sDISABLE_EXCEPTION_CATCHING=0 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sINITIAL_MEMORY=256MB",
+    "wasm:include": "npm run wasm:settings -- -I./src/ -I./build/src/ -I./deps/boost/include -I./deps/include",
+    "wasm:rime-static": "npm run wasm:include -- -L./build/lib -lrime",
+    "wasm:boost-static": "npm run wasm:rime-static -- -L./deps/boost/lib -lboost_signals -lboost_filesystem -lboost_regex -lboost_system -lboost_locale",
+    "wasm:deps": "npm run wasm:boost-static -- -L./deps/lib -lleveldb -lmarisa -lopencc -lyaml-cpp -lglog",
+    "console:web": "npm run wasm:deps -- ./tools/rime_console.cc -o ./console/web.html --preload-file ./data/minimal/@/",
+    "console:node": "npm run wasm:deps -- ./tools/rime_console.cc -o ./console/node.js -sNODERAWFS -lnodefs.js"
   },
   "repository": {
     "type": "git",

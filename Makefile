@@ -43,11 +43,20 @@ librime-static:
 	cmake --build $(build)
 
 release:
-	cmake . -B$(build) \
+	emcmake cmake . -B$(build) \
 	-DCMAKE_INSTALL_PREFIX=$(prefix) \
 	-DCMAKE_BUILD_TYPE=Release \
 	-DBUILD_MERGED_PLUGINS=OFF \
-	-DENABLE_EXTERNAL_PLUGINS=ON
+	-DENABLE_EXTERNAL_PLUGINS=OFF \
+	-DBUILD_TEST=OFF \
+	-DBUILD_STATIC=ON \
+	-DBUILD_SHARED_LIBS=OFF \
+	-DBOOST_USE_SIGNALS2=OFF \
+	-DBOOST_USE_CXX11=ON \
+	-DCMAKE_TOOLCHAIN_FILE=/home/ubuntu/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake \
+	-DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -pthread" \
+	-DBOOST_INCLUDEDIR:FILEPATH=${RIME_ROOT}/deps/boost/include \
+	-DBOOST_LIBRARYDIR:FILEPATH=${RIME_ROOT}/deps/boost/lib
 	cmake --build $(build)
 
 merged-plugins:

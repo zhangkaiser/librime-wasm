@@ -21,6 +21,14 @@ function initFS() {
   
 }
 
+globalThis.rimeNotificationHandler =  function(type, value) {
+  if (Module['rimeNotificationHandler']) {
+    Module['rimeNotificationHandler'](type, value);
+  } else {
+    console.error("No notification handler.", type, value);
+  }
+}
+
 globalThis.refreshFS = () => {
   
   try {

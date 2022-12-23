@@ -4,6 +4,7 @@
 #include <emscripten/bind.h>
 #include <emscripten.h>
 #include <rime_api.h>
+#include <rime/key_event.h>
 
 using namespace emscripten;
 
@@ -19,8 +20,8 @@ void on_message(void* context_object,
       const char* message_value
 ) {
   EM_ASM({
-    console.log("ASM Test ->", $0, UTF8ToString($1), UTF8ToString($2));
-  }, session_id, message_type, message_value);
+    rimeNotificationHandler(UTF8ToString($0), UTF8ToString($1));
+  }, message_type, message_value);
 }
 
 class Decoder {
@@ -37,18 +38,19 @@ class Decoder {
 
       if (is_setup) {
         rime_->setup(&traits);
-      } else {
-        rime_->initialize(&traits);
-        if (enable_thread) {
-          Bool full_check = True;
+      }
 
-          if (rime_->start_maintenance(full_check))
-            rime_->join_maintenance_thread();
-        }
+      rime_->initialize(&traits);
+
+
+      if (enable_thread) {
+        Bool full_check = True;
+
+        if (rime_->start_maintenance(full_check))
+          rime_->join_maintenance_thread();
       }
 
       create_session();
-      
     }
 
     ~Decoder() {
@@ -62,6 +64,10 @@ class Decoder {
       }
     }
 
+    bool destroy_session() {
+      return rime_->destroy_session(session_id_);
+    }
+
     // Adapt current ChromeOS IME UI extension.
     std::string decode(std::string sps_buf) {
       
@@ -71,7 +77,7 @@ class Decoder {
       // if (execute_special_command(line, session_id_)) return;
 
       if (rime_->simulate_key_sequence(session_id_, sps_buf.c_str())) {
-        set_context();
+        get_context();
         // RimeMenu menu(context_->menu);
         RimeCandidateListIterator iterator = {0};
         if (rime_->candidate_list_begin(session_id_, &iterator)) {
@@ -84,16 +90,20 @@ class Decoder {
           rime_->candidate_list_end(&iterator);
         }
       }
-
+      
       return str_candidates;
     }
 
-    void send_key() {
+    Bool process_key(std::string key) {
 
+      rime::KeyEvent keyEvent(key);
+      return rime_->process_key(session_id_, keyEvent.keycode(), keyEvent.modifier());
     }
 
     void clear() {
+      rime_->free_commit(commit_);
       rime_->free_context(context_);
+      rime_->free_status(status_);
     }
 
     void close() {
@@ -105,6 +115,8 @@ class Decoder {
 
     RimeSessionId session_id_;
     RimeContext* context_;
+    RimeStatus* status_;
+    RimeCommit* commit_;
 
     void set_traits(RimeTraits &traits) {
       traits.app_name = APP_NAME;
@@ -112,16 +124,31 @@ class Decoder {
       traits.shared_data_dir = SHARED_DATA_DIR;
     }
 
-    void set_context() {
+    Bool get_context() {
       RIME_STRUCT(RimeContext, context);
       context_ = &context;
-      rime_->get_context(session_id_, &context);
+      return rime_->get_context(session_id_, &context);
     }
+
+    Bool get_commit() {
+      RIME_STRUCT(RimeCommit, commit);
+      commit_ = &commit;
+      return rime_->get_commit(session_id_, &commit);
+    }
+
+    Bool get_status() {
+      RIME_STRUCT(RimeStatus, status);
+      status_ = &status;
+      return rime_->get_status(session_id_, &status);
+    }
+
+
 };
 
 
 EMSCRIPTEN_BINDINGS(rime_decoder) {
   class_<Decoder>("Decoder")
     .constructor<bool, bool>()
-    .function("decode", &Decoder::decode);
+    .function("decode", &Decoder::decode)
+    .function("processKey", &Decoder::process_key);
 }

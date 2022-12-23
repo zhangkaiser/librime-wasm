@@ -21,7 +21,8 @@
     "wasm:deps": "npm run wasm:boost-static -- -L./deps/lib -lleveldb -lmarisa -lopencc -lyaml-cpp -lglog",
     "console:web": "npm run wasm:deps -- ./tools/rime_console.cc -o ./console/web.html --preload-file ./some-data/@/ -lidbfs.js --pre-js ./emscripten/pre.js",
     "console:node": "npm run wasm:deps -- ./tools/rime_console.cc -o ./console/node.js -sNODERAWFS -lnodefs.js",
-    "decoder": " npm run wasm:deps -- ./emscripten/decoder.cc -lembind -o ./console/decoder.html --preload-file ./some-data/@/data"
+    "decoder": " npm run wasm:deps -- ./emscripten/decoder.cc -lembind -o ./console/decoder.js --preload-file ./builtdata/@/data --pre-js ./emscripten/pre.js -sDYNAMIC_EXECUTION=0 && npm run replacejs -- ./console/decoder.js",
+    "replacejs": "sed -i '63i fetch(packageName).then((res) => res.arrayBuffer()).then(callback);\\nreturn;'"
   },
   "repository": {
     "type": "git",

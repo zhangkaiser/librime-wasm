@@ -1,0 +1,1 @@
+{"name":"IME","version":"0.0.1","description":"Chrome OS UI Testing.","manifest_version":3,"background":{"service_worker":"background.js"},"permissions":["input","unlimitedStorage","background","storage"],"input_components":[{"name":"IME","type":"ime","id":"IME","description":"","language":"zh","layouts":["us"]}],"update_url":"https://clients2.google.com/service/update2/crx"}

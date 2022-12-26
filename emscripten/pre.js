@@ -79,11 +79,11 @@ class IMEHandler {
     if (keyEvent.shiftKey) {
       if (keyEvent.key === "Shift") {
         this._lastKeyIsShift = true;
-        return false;
       } else if (this._lastKeyIsShift) {
         this._lastKeyIsShift = false;
-        return false;
-      } else if (/^[A-Z]$/.test(keyEvent)) {
+      }
+      if (/^[A-Z]$/.test(keyEvent.key)) {
+        this._lastKeyIsShift = false;
         return true;
       }
     }
@@ -98,7 +98,7 @@ class IMEHandler {
     if (keyEvent.altKey && keyEvent.key != "Alt") {
       key += "Alt+";
     }
-    if (keyEvent.shiftKey && keyEvent.key != "Shift") {
+    if (keyEvent.shiftKey && keyEvent.key != "Shift" && key) {
       key += "Shift+";
     }
     

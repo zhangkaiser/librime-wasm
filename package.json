@@ -3,6 +3,7 @@
   "version": "1.7.3",
   "description": "Rime Input Method Engine",
   "main": "index.js",
+  "type": "module",
   "directories": {
     "doc": "doc",
     "test": "test"
@@ -10,19 +11,17 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "version": "./bump-version.sh",
+    "build:noevaldecoder": " npm run build:wasmdeps -- ./emscripten/decoder.cc -lembind -o ./build/background.js --pre-js ./emscripten/pre.js -sDYNAMIC_EXECUTION=0",
+    "build:deps": "rollup -c",
     "librime": "npm run emscripten:cmake-adapter && emmake make librime && npm run emscripten:cmake-revert",
     "emscripten:cmake-adapter": "bash ./emscripten/cmake-adapter.sh",
     "emscripten:cmake-revert": "bash ./emscripten/cmake-revert.sh",
-    "wasm:base": "emcc -std=c++14 -pthread -Wall -Wno-js-compiler -Wno-deprecated-builtins -Wno-deprecated-declarations",
-    "wasm:settings": "npm run wasm:base -sWASM_BIGINT -- -sASSERTIONS -sDISABLE_EXCEPTION_CATCHING=0 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sINITIAL_MEMORY=256MB",
-    "wasm:include": "npm run wasm:settings -- -I./src/ -I./build/src/ -I./deps/boost/include -I./deps/include",
-    "wasm:rime-static": "npm run wasm:include -- -L./build/lib -lrime",
-    "wasm:boost-static": "npm run wasm:rime-static -- -L./deps/boost/lib -lboost_signals -lboost_filesystem -lboost_regex -lboost_system -lboost_locale",
-    "wasm:deps": "npm run wasm:boost-static -- -L./deps/lib -lleveldb -lmarisa -lopencc -lyaml-cpp -lglog",
+    "build:wasmbase": "emcc -std=c++14 -pthread -Wall -Wno-js-compiler -Wno-deprecated-builtins -Wno-deprecated-declarations",
+    "build:wasmsettings": "npm run build:wasmbase -- -sWASM_BIGINT -sASSERTIONS -sDISABLE_EXCEPTION_CATCHING=0 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sINITIAL_MEMORY=256MB",
+    "build:wasminclude": "npm run build:wasmsettings -- -I./src/ -I./build/src/ -I./deps/boost/include -I./deps/include",
+    "build:wasmdeps": "npm run build:wasminclude -- -L./build/lib -lrime -L./deps/boost/lib -lboost_signals -lboost_filesystem -lboost_regex -lboost_system -lboost_locale -L./deps/lib -lleveldb -lmarisa -lopencc -lyaml-cpp -lglog",
     "console:web": "npm run wasm:deps -- ./tools/rime_console.cc -o ./console/web.html --preload-file ./some-data/@/ -lidbfs.js --pre-js ./emscripten/pre.js",
-    "console:node": "npm run wasm:deps -- ./tools/rime_console.cc -o ./console/node.js -sNODERAWFS -lnodefs.js",
-    "decoder": " npm run wasm:deps -- ./emscripten/decoder.cc -lembind -o ./console/decoder.js --preload-file ./builtdata/@/data --pre-js ./emscripten/pre.js -sDYNAMIC_EXECUTION=0 && npm run replacejs -- ./console/decoder.js",
-    "replacejs": "sed -i '63i fetch(packageName).then((res) => res.arrayBuffer()).then(callback);\\nreturn;'"
+    "console:node": "npm run wasm:deps -- ./tools/rime_console.cc -o ./console/node.js -sNODERAWFS -lnodefs.js"
   },
   "repository": {
     "type": "git",
@@ -35,6 +34,13 @@
   },
   "homepage": "https://github.com/rime/librime#readme",
   "devDependencies": {
-    "conventional-changelog-cli": "^1.3.14"
+    "@rollup/plugin-typescript": "^10.0.1",
+    "@types/chrome": "^0.0.206",
+    "@types/emscripten": "^1.39.6",
+    "@types/node": "^18.11.18",
+    "conventional-changelog-cli": "^1.3.14",
+    "rollup": "^3.9.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
   }
 }

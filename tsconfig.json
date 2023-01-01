@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "esnext",
+    "removeComments": true,
+    "lib": [
+      "DOM", "WebWorker", "DOM.Iterable", "ESNEXT"
+    ],
+    "paths": {
+      "src/*": [
+        "./emscripten/src/*"
+      ]
+    },
+    "target": "ES2022",
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "declaration": true,
+    "outDir": "./out",
+    "esModuleInterop": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "alwaysStrict": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "inlineSources": true
+  },
+  "include": [
+    "emscripten/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules/**/*.ts"
+  ]
+}

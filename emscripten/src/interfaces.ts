@@ -3,6 +3,9 @@ export interface IDecoder {
   processKey(keyEvent: string): boolean;
   notifyUpdate(): void;
   delete(): void;
+  triggerMethod(method_id: number): boolean;
+  executeCommand(line: string): boolean;
+  decode(source: string): boolean;
 }
 
 interface IDecoderConstructor {

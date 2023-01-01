@@ -11,7 +11,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "version": "./bump-version.sh",
-    "build:noevaldecoder": " npm run build:wasmdeps -- ./emscripten/decoder.cc -lembind -o ./build/background.js --pre-js ./emscripten/pre.js -sDYNAMIC_EXECUTION=0",
+    "build:noevaldecoder": " npm run build:wasmdeps -- ./emscripten/decoder.cc -lembind -o ./out/background.js --pre-js ./out/index.js -sDYNAMIC_EXECUTION=0",
     "build:deps": "rollup -c",
     "librime": "npm run emscripten:cmake-adapter && emmake make librime && npm run emscripten:cmake-revert",
     "emscripten:cmake-adapter": "bash ./emscripten/cmake-adapter.sh",
@@ -19,9 +19,9 @@
     "build:wasmbase": "emcc -std=c++14 -pthread -Wall -Wno-js-compiler -Wno-deprecated-builtins -Wno-deprecated-declarations",
     "build:wasmsettings": "npm run build:wasmbase -- -sWASM_BIGINT -sASSERTIONS -sDISABLE_EXCEPTION_CATCHING=0 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sINITIAL_MEMORY=256MB",
     "build:wasminclude": "npm run build:wasmsettings -- -I./src/ -I./build/src/ -I./deps/boost/include -I./deps/include",
-    "build:wasmdeps": "npm run build:wasminclude -- -L./build/lib -lrime -L./deps/boost/lib -lboost_signals -lboost_filesystem -lboost_regex -lboost_system -lboost_locale -L./deps/lib -lleveldb -lmarisa -lopencc -lyaml-cpp -lglog",
-    "console:web": "npm run wasm:deps -- ./tools/rime_console.cc -o ./console/web.html --preload-file ./some-data/@/ -lidbfs.js --pre-js ./emscripten/pre.js",
-    "console:node": "npm run wasm:deps -- ./tools/rime_console.cc -o ./console/node.js -sNODERAWFS -lnodefs.js"
+    "build:wasmdeps": "npm run build:wasminclude -- -L./build/lib -lrime -L./deps/boost/lib -lboost_signals -lboost_filesystem -lboost_regex -lboost_system -lboost_locale -L./deps/lib -lleveldb -lmarisa -lopencc -lyaml-cpp -lglog", 
+    "console:web": "npm run build:wasmdeps -- ./tools/rime_console.cc -o ./console/web.html --preload-file ./some-data/@/ -lidbfs.js --pre-js ./emscripten/pre.js",
+    "console:node": "npm run build:wasmdeps -- ./tools/rime_console.cc -o ./console/node.js -sNODERAWFS -lnodefs.js"
   },
   "repository": {
     "type": "git",

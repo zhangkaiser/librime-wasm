@@ -1,5 +1,7 @@
 import { DecoderModule, IComposition, IDecoder, IIMEHandler, IWindowProperties } from "./interfaces";
 import { kNormalKeyMap } from "./consts";
+import { isDir } from "./api/common/files";
+import { writeFileFromFile, writeFileFromFileList } from "./api/emscripten/files";
 
 export class IMEHandler implements IIMEHandler {
   port?: chrome.runtime.Port;
@@ -199,6 +201,20 @@ export class IMEHandler implements IIMEHandler {
 
   onNotification(type: string, value: string) {
     console.log(type, value);
+  }
+
+  writeToUserDB(files: FileList):Promise<boolean[]> | undefined {
+    if (!isDir(files[0])) return;
+
+    return writeFileFromFileList(FS, files, "data/user", false);
+  }
+
+  writeToSharedData(files: FileList) {
+    return writeFileFromFileList(FS, files, "shared_data", false);
+  }
+
+  writeToBuild(files: FileList) {
+    return writeFileFromFileList(FS, files, "data/build", false);
   }
 
 }

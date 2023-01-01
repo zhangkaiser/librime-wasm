@@ -13,8 +13,8 @@ using namespace std;
 #define USER_DATA_DIR "./data/user"
 #define SHARED_DATA_DIR "./shared_data"
 #define BUILT_DATA_DIR "./data/build"
-#define LOG_DATA_DIR "./data/log"
-#define MIN_LOG_LEVEL 0
+// #define LOG_DATA_DIR "./data/log"
+// #define MIN_LOG_LEVEL 0
 #define SPS_MAX_LEN 120
 #define CANDS_MAX_NUM 50
 
@@ -219,7 +219,7 @@ class Decoder {
       traits.prebuilt_data_dir = BUILT_DATA_DIR;
       traits.staging_dir = BUILT_DATA_DIR;
 
-      traits.min_log_level = MIN_LOG_LEVEL;
+      // traits.min_log_level = MIN_LOG_LEVEL;
     }
 
     Bool get_context() {

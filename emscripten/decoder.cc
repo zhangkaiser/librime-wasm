@@ -47,7 +47,7 @@ class Decoder {
 
       RIME_STRUCT(RimeTraits, traits);
       set_traits(traits);
-      traits_ = traits;
+      traits_ = &traits;
 
       rime_->set_notification_handler(&on_message, NULL);
 

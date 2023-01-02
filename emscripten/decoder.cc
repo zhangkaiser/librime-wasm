@@ -48,11 +48,12 @@ class Decoder {
       RIME_STRUCT(RimeTraits, traits);
       set_traits(traits);
       traits_ = &traits;
-      if (is_setup) rime_->setup(&traits);
 
       rime_->set_notification_handler(&on_message, NULL);
-
-      rime_->initialize(&traits);
+      if (is_setup)  {
+        rime_->setup(&traits);
+        rime_->initialize(NULL);
+      } else rime_->initialize(&traits);
 
       if (enable_thread) {
         Bool full_check = True;

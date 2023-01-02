@@ -65,8 +65,10 @@ export function writeFileFromFile(fs: typeof FS,file: File, path = "", isRelativ
     
     try {
       (fs as any).createPath("/", basePath, true, true);
-      let bufferView = new DataView(buffer);
-      fs.writeFile(path, bufferView);
+      FS.createDataFile(path, "", new Uint8Array(buffer), true, true, true)
+      // let bufferView = new DataView(buffer);
+      // fs.writeFile(path, bufferView);
+
       return true;
     } catch(e) {
       return false;
@@ -78,7 +80,7 @@ export function writeFileFromFileList(fs: typeof FS, files: FileList, path: stri
     
   let promises = [];
   for (let file of files) {
-    promises.push(writeFileFromFile(FS, file, path));
+    promises.push(writeFileFromFile(FS, file, path, relative));
   }
 
   return Promise.all(promises);

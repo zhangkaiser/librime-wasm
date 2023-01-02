@@ -10,9 +10,9 @@ using namespace emscripten;
 using namespace std;
 
 #define APP_NAME "rime.decoder"
-#define USER_DATA_DIR "./data/user"
-#define SHARED_DATA_DIR "./shared_data"
-#define BUILT_DATA_DIR "./data/build"
+#define USER_DATA_DIR "/data/user"
+#define SHARED_DATA_DIR "/shared_data"
+#define BUILT_DATA_DIR "/data/build"
 // #define LOG_DATA_DIR "./data/log"
 // #define MIN_LOG_LEVEL 0
 #define SPS_MAX_LEN 120
@@ -48,10 +48,9 @@ class Decoder {
       RIME_STRUCT(RimeTraits, traits);
       set_traits(traits);
       traits_ = &traits;
+      if (is_setup) rime_->setup(&traits);
 
       rime_->set_notification_handler(&on_message, NULL);
-
-      if (is_setup) rime_->setup(&traits);
 
       rime_->initialize(&traits);
 

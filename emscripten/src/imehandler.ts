@@ -30,7 +30,7 @@ export class IMEHandler implements IIMEHandler {
   }
 
   checkDecoder() {
-    if (!this.decoder) {
+    if (!this.decoder && DecoderModule) {
       this.decoder = new DecoderModule.Decoder(false, false);
     }
   }

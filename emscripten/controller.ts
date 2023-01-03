@@ -13,14 +13,15 @@ export class Controller extends Disposable {
 
   registerRuntimeDeps() {
     globalThis.imeHandler = new IMEHandler;
-    
-    DecoderModule['onRuntimeInitialized'] = () => {
-      this.loadedPromise = Promise.resolve();
+    if (DecoderModule) {
+      DecoderModule['onRuntimeInitialized'] = () => {
+        this.loadedPromise = Promise.resolve();
+      }  
     }
   }
 
   registerChromeMessageEvent() {
-    if (!chrome) return ;
+    if (!this.isChrome) return ;
 
     this.setCurrentEventName("onConnectExternal");
     this.disposable = registerEventDisposable(
@@ -40,7 +41,7 @@ export class Controller extends Disposable {
   }
 
   registerWorkerListener() {
-    if (DecoderModule['ENVIRONMENT_IS_PTHREAD']) return;
+    if (!DecoderModule || DecoderModule['ENVIRONMENT_IS_PTHREAD']) return;
     if (DecoderModule['ENVIRONMENT_IS_WORKER']) {
       imeHandler.mainWorker = false;
       imeHandler.port = {
@@ -58,7 +59,7 @@ export class Controller extends Disposable {
   registerChromeIMEEvent() {
     if (!this.isChromeIME) return;
   }
-  
+
 
   handleChromeExternalConnect(port: chrome.runtime.Port) {
 

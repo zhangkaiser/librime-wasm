@@ -58,4 +58,4 @@ export enum trigger_method_id {
   deploy
 }
 
-export const DecoderModule = Module as IDecoderModule;
+export const DecoderModule = typeof Module !== "undefined" ? Module as IDecoderModule : undefined;

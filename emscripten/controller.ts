@@ -15,12 +15,13 @@ export class Controller extends Disposable {
   inited: boolean = false;
 
   mountIDBFS() {
+    addRunDependency(fdSyncDepsID);
     FS.mkdir("data");
     FS.mount(IDBFS, {}, "data");
     FS.syncfs(true, (err) => {
       if (err) return console.error(err);
       this.inited = true;
-      DecoderModule?.removeRunDependency(fdSyncDepsID);
+      removeRunDependency(fdSyncDepsID);
     })
   }
 
@@ -35,7 +36,6 @@ export class Controller extends Disposable {
   registerRuntimeDeps() {
     globalThis.imeHandler = new IMEHandler;
     if (DecoderModule) {
-      DecoderModule.addRunDependency(fdSyncDepsID);
       DecoderModule['onRuntimeInitialized'] = () => {
         this.loadedPromise = Promise.resolve();
       }

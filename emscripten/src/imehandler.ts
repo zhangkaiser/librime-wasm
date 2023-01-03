@@ -7,22 +7,35 @@ import { IMiniPort } from "src/api/common/port";
 export class IMEHandler implements IIMEHandler {
   port?: IMiniPort;
   
-  decoder?: IDecoder;
+  #decoder?: IDecoder;
   
   contextID = -1;
   engineID = "";
   candidates: chrome.input.ime.CandidateTemplate[] = [];
   candidatesSize = 0;
   mainWorker = false;
+  inited = false;
 
   visible = false;
   shiftLock = false;
   _lastKeyIsShift = false;
 
+  initialize() {
+    this.checkDecoder();
+    this.inited = !!this.#decoder?.initialize(true);
+  }
+
+  set decoder(value: IDecoder | undefined) {
+    this.#decoder = value;
+  }
+
+  get decoder() {
+    if (!this.inited) this.initialize();
+    return this.#decoder;
+  }
+
   onActivate(engineID: string) {
     this.engineID = engineID;
-    this.checkDecoder();
-    this.decoder?.initizlize(true);
   }
 
   onFocus(context: chrome.input.ime.InputContext) {
@@ -32,7 +45,7 @@ export class IMEHandler implements IIMEHandler {
   }
 
   checkDecoder() {
-    if (!this.decoder && DecoderModule) {
+    if (!this.#decoder && DecoderModule) {
       this.decoder = new DecoderModule.Decoder();
     }
   }
@@ -73,7 +86,6 @@ export class IMEHandler implements IIMEHandler {
 
   onKeyEvent(engineID: string, keyEvent: chrome.input.ime.KeyboardEvent, requestId: number) {
     this.engineID = engineID;
-    this.checkDecoder();
 
     if (keyEvent.type === "keydown") {
       if (this.handleShiftKey(keyEvent)) {
@@ -92,9 +104,9 @@ export class IMEHandler implements IIMEHandler {
       
       let key = this.getKeyString(keyEvent);
       
-      let response = this.decoder!.processKey(key);
+      let response = this.decoder?.processKey(key);
       this.handleResponse(requestId, !!response);
-      if (response) this.decoder!.notifyUpdate();
+      if (response) this.decoder?.notifyUpdate();
 
     } else {
       if (keyEvent.key === "Shift" && this._lastKeyIsShift) {
@@ -196,10 +208,10 @@ export class IMEHandler implements IIMEHandler {
   }
 
   handleResponse(requestId: number, response: boolean) {
-    this.handleMethod("keyEventHandled", [
+    this.handleMethod("keyEventHandled", [[
       requestId,
       response
-    ]);
+    ]]);
   }
 
   onNotification(type: string, value: string) {
@@ -233,8 +245,8 @@ export class IMEHandler implements IIMEHandler {
 
   updateData() {
     this.checkDecoder();
-    if (!this.decoder) return false;
-    return this.decoder.update();
+    if (!this.#decoder) return false;
+    return this.#decoder.update();
   }
 
 }

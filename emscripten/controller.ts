@@ -90,12 +90,13 @@ export class Controller extends Disposable {
       if (type in imeHandler) {
 
         let result = imeHandler[type](...value);
-        if (typeof result === "function") {
+        if (typeof result === "object" && 'then' in result) {
           result.then((res: any) => {
             postMessage({data: { type, value:  [res]}});
-          })
+          });
+        } else {
+          postMessage({data: { type, value:  [result]}});
         }
-        postMessage({data: { type, value:  [result]}});
       }
     }
   }
@@ -116,7 +117,7 @@ export class Controller extends Disposable {
   }
 
   handleChromeMessage(res: IMessageObjectType, sender: chrome.runtime.MessageSender, response: (data: IMessageObjectType) => void) {
-    
+
   }
 
   handleChromeConnect(port: chrome.runtime.Port) {

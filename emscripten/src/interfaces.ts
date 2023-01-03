@@ -2,7 +2,7 @@ import { EmscriptenMoreModule } from "src/api/emscripten/extends";
 
 export interface IDecoder {
   processKey(keyEvent: string): boolean;
-  initizlize(is_setup: boolean): boolean;
+  initialize(is_setup: boolean): boolean;
   notifyUpdate(): void;
   delete(): void;
   triggerMethod(method_id: number): boolean;

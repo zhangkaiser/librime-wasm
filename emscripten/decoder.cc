@@ -37,7 +37,6 @@ class Decoder {
     }
 
     bool initialize(
-      bool enable_thread = False,
       bool is_setup = False
     ) {
       if (is_setup) {
@@ -248,5 +247,6 @@ EMSCRIPTEN_BINDINGS(rime_decoder) {
     .function("triggerMethod", &Decoder::trigger_method)
     .function("decode", &Decoder::decode)
     .function("update", &Decoder::update)
+    .function("initialize",&Decoder::initialize)
     ;
 }

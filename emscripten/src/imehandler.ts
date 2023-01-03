@@ -31,7 +31,7 @@ export class IMEHandler implements IIMEHandler {
 
   checkDecoder() {
     if (!this.decoder && DecoderModule) {
-      this.decoder = new DecoderModule.Decoder(false, false);
+      this.decoder = new DecoderModule.Decoder();
     }
   }
 
@@ -229,7 +229,11 @@ export class IMEHandler implements IIMEHandler {
     })
   }
 
-  
+  updateData() {
+    this.checkDecoder();
+    if (!this.decoder) return false;
+    return this.decoder.update();
+  }
 
 }
 

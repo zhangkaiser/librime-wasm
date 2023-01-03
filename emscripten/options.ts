@@ -18,6 +18,18 @@ function registerFileHandler(imeHandler: IMEHandler) {
       }
     });
   });
+
+  let btns = ["build", "sync"];
+  btns.forEach((btnID) => {
+    let btnElement = document.getElementById(btnID);
+    btnElement?.addEventListener("click", (ev) => {
+      if (btnID === "build") {
+        imeHandler.updateData();
+      } else if (btnID === "sync") {
+        imeHandler.flushCache();
+      }
+    })
+  })
 }
 
 

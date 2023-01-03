@@ -4,7 +4,7 @@ import { IMessageObjectType } from "src/api/common/message";
 import { Disposable } from "src/api/common/disposable";
 import { registerEventDisposable } from "src/api/extension/event";
 
-const fdSyncDepsID = "fd->syncData";
+const fdSyncDepsID = "fd.syncData";
 
 export class Controller extends Disposable {
   
@@ -30,7 +30,7 @@ export class Controller extends Disposable {
   }
 
   printErr(...args: any[]) {
-    console.error(...args);
+    console.info(...args);
   }
 
   registerRuntimeDeps() {
@@ -41,7 +41,9 @@ export class Controller extends Disposable {
       }
       DecoderModule['print'] = (...args) => this.print(...args);
       DecoderModule['printErr'] = (...args) => this.printErr(args);
-      this.mountIDBFS();
+      if (!DecoderModule['preRun']) DecoderModule['preRun'] = [];
+
+      DecoderModule['preRun'].unshift(this.mountIDBFS.bind(this));
     }
   }
 
@@ -68,6 +70,7 @@ export class Controller extends Disposable {
   registerWorkerListener() {
     if (!DecoderModule || DecoderModule['ENVIRONMENT_IS_PTHREAD']) return;
     if (!ENVIRONMENT_IS_WORKER) return;
+    if (typeof postMessage !== "function") return; 
     imeHandler.mainWorker = true;
     
 
@@ -85,7 +88,14 @@ export class Controller extends Disposable {
       let { data } = ev.data as IMessageObjectType;
       let {type, value} = data;
       if (type in imeHandler) {
-        postMessage({data: { type, value: [imeHandler[type](...value)] }});
+
+        let result = imeHandler[type](...value);
+        if (typeof result === "function") {
+          result.then((res: any) => {
+            postMessage({data: { type, value:  [res]}});
+          })
+        }
+        postMessage({data: { type, value:  [result]}});
       }
     }
   }
@@ -96,11 +106,17 @@ export class Controller extends Disposable {
 
 
   handleChromeExternalConnect(port: chrome.runtime.Port) {
-
+    imeHandler.port = port;
+    port.onMessage.addListener((msg, port) => {
+      let { type, value } = msg.data;
+      if (type in imeHandler) {
+        imeHandler[type](...value);
+      }
+    });
   }
 
   handleChromeMessage(res: IMessageObjectType, sender: chrome.runtime.MessageSender, response: (data: IMessageObjectType) => void) {
-
+    
   }
 
   handleChromeConnect(port: chrome.runtime.Port) {

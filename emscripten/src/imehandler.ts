@@ -21,6 +21,8 @@ export class IMEHandler implements IIMEHandler {
 
   onActivate(engineID: string) {
     this.engineID = engineID;
+    this.checkDecoder();
+    this.decoder?.initizlize(true);
   }
 
   onFocus(context: chrome.input.ime.InputContext) {

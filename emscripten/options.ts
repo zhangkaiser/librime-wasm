@@ -38,7 +38,9 @@ async function main() {
   let worker = new Worker("./worker/pthread.js");
   let imeHandler = convertToPortInstance(IMEHandler as any, worker, [
     "writeToSharedData",
-    "writeToData"
+    "writeToData",
+    "updateData",
+    "flushCache"
   ]) as InstanceType<typeof IMEHandler>;
 
   registerFileHandler(imeHandler);

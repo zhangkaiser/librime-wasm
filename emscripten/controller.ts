@@ -42,10 +42,19 @@ export class Controller extends Disposable {
 
   registerWorkerListener() {
     if (!DecoderModule || DecoderModule['ENVIRONMENT_IS_PTHREAD']) return;
-    if (DecoderModule['ENVIRONMENT_IS_WORKER']) {
+    if (ENVIRONMENT_IS_WORKER) {
       imeHandler.mainWorker = false;
       imeHandler.port = {
         postMessage: globalThis.postMessage,
+      }
+
+      Module['printErr'] = (...args) => {
+        postMessage({
+          data: {
+            type: "printErr",
+            value: args
+          }
+        })
       }
 
       globalThis.onmessage = (ev) => {

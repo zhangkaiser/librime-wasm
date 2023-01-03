@@ -10,7 +10,8 @@ export default [
     },
     plugins: [
       rollupTypescript()
-    ]
+    ],
+    treeshake: false
   },
   {
     input: "emscripten/options.ts",

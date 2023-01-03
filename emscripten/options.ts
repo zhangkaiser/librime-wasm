@@ -25,8 +25,8 @@ async function main() {
 
   let worker = new Worker("./worker/pthread.js");
   let imeHandler = convertToPortInstance(IMEHandler as any, worker, [
-    "addSourceDataFiles",
-    "addBuiltDataDir"
+    "writeToSharedData",
+    "writeToData"
   ]) as InstanceType<typeof IMEHandler>;
 
   registerFileHandler(imeHandler);
@@ -34,8 +34,9 @@ async function main() {
   let infos = document.getElementById("infos") as HTMLTextAreaElement;
   let printErr = getPrintWithTextareaElement(infos);
 
-  worker.onmessage = (ev: IMessageObjectType) => {
-    let  { type, value } = ev.data;
+  worker.onmessage = (ev) => {
+    let  { data } = ev.data as IMessageObjectType;
+    let { type, value } = data;
     if (type === "printErr") {
       printErr(...value);
     } else if (type === "update_state") {

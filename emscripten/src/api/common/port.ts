@@ -34,14 +34,11 @@ export function convertToPortInstance<T extends FunctionConstructor>(
 ): any {
   
   let instance = Object.create(obj.prototype);
-  
-  Object.keys(instance).forEach((name: string) => {
-    if (overrideList.indexOf(name) > -1) {
-      instance[name] = (...args: any[]) => {
-        port.postMessage({
-          data: { type: name, value: args }
-        });
-      }
+  overrideList.forEach((name) => {
+    instance.__proto__[name] = (...args: any[]) => {
+      port.postMessage({
+        data: { type: name, value: args }
+      });
     }
   });
 

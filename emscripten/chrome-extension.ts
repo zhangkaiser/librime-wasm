@@ -1,6 +1,6 @@
 import { Controller } from "./controller";
 
-let post_run: any;
+var post_run: any;
 
 function main() {
   let controller = new Controller();

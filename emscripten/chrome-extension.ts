@@ -1,12 +1,17 @@
 import { Controller } from "./controller";
 
-let isZhime = Reflect.has(chrome, "input") ? false : true;
+let post_run: any;
 
-async function main() {
+function main() {
   let controller = new Controller();
   controller.registerRuntimeDeps();
   controller.registerChromeMessageEvent();
-  if (!isZhime) controller.registerChromeIMEEvent();
+  controller.registerChromeIMEEvent();
+  
+  post_run = () => {
+    controller.registerWorkerListener();
+  }
 }
+
 
 main();

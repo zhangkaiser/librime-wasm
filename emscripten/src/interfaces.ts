@@ -1,3 +1,4 @@
+import { EmscriptenMoreModule } from "src/api/emscripten/extends";
 
 export interface IDecoder {
   processKey(keyEvent: string): boolean;
@@ -6,6 +7,7 @@ export interface IDecoder {
   triggerMethod(method_id: number): boolean;
   executeCommand(line: string): boolean;
   decode(source: string): boolean;
+  update(): void;
 }
 
 interface IDecoderConstructor {
@@ -30,6 +32,8 @@ export interface IWindowProperties {
 }
 
 export interface IIMEHandler {
+  
+  /** Invoke method from WASM. */
   commitText(text: string): void;
   setComposition(obj: IComposition): void;
   setCandidateWindowProperties(obj: IWindowProperties): void;
@@ -40,10 +44,18 @@ export interface IIMEHandler {
 }
 
 
-interface IDecoderModule extends EmscriptenModule {
+interface IDecoderModule extends EmscriptenMoreModule {
   Decoder: IDecoderConstructor;
-  addRunDependency(id: string): void;
-  removeRunDependency(id: string): void;
+}
+
+export enum trigger_method_id {
+  setup,
+  start_maintenance,
+  is_maintenance_mode,
+  join_maintenance_thread,
+  deployer_initialize,
+  prebuild,
+  deploy
 }
 
 export const DecoderModule = Module as IDecoderModule;

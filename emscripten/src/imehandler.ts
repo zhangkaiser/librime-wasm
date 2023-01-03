@@ -1,10 +1,11 @@
 import { DecoderModule, IComposition, IDecoder, IIMEHandler, IWindowProperties } from "./interfaces";
 import { kNormalKeyMap } from "./consts";
-import { isDir } from "./api/common/files";
-import { writeFileFromFile, writeFileFromFileList } from "./api/emscripten/files";
+import { isDir } from "src/api/common/files";
+import { writeFileFromFile, writeFileFromFileList } from "src/api/emscripten/files";
+import { IMiniPort } from "src/api/common/port";
 
 export class IMEHandler implements IIMEHandler {
-  port?: chrome.runtime.Port;
+  port?: IMiniPort;
   
   decoder?: IDecoder;
   
@@ -12,11 +13,11 @@ export class IMEHandler implements IIMEHandler {
   engineID = "";
   candidates: chrome.input.ime.CandidateTemplate[] = [];
   candidatesSize = 0;
+  mainWorker = false;
 
   visible = false;
   shiftLock = false;
   _lastKeyIsShift = false;
-
 
   onActivate(engineID: string) {
     this.engineID = engineID;
@@ -184,7 +185,7 @@ export class IMEHandler implements IIMEHandler {
 
   handleMethod(type: string, value: any) {
     if (!this.port) return;
-    this.port?.postMessage({
+    this.port.postMessage({
       data: {
         type,
         value
@@ -210,11 +211,27 @@ export class IMEHandler implements IIMEHandler {
   }
 
   writeToSharedData(files: FileList) {
-    return writeFileFromFileList(FS, files, "shared_data", false);
+    return writeFileFromFileList(FS, files, "shared_data", true);
   }
 
   writeToBuild(files: FileList) {
-    return writeFileFromFileList(FS, files, "data/build", false);
+    return writeFileFromFileList(FS, files, "data/build", true);
   }
 
+  writeToData(files: FileList) {
+    return writeFileFromFileList(FS, files, "data", false);
+  }
+
+  /** Sync to IDBFS. */
+  flushCache() {
+    FS.syncfs(false, (err) => {
+      // if (err)  return console.error(err);
+    })
+  }
+
+  
+
 }
+
+export type IMEHandlerInstance = InstanceType<typeof IMEHandler>;
+export type IMEHandlerKeyUnion = keyof IMEHandlerInstance;

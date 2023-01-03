@@ -80,7 +80,7 @@ export function writeFileFromFileList(fs: typeof FS, files: FileList, path: stri
     
   let promises = [];
   for (let file of files) {
-    promises.push(writeFileFromFile(FS, file, path, relative));
+    promises.push(writeFileFromFile(fs, file, path, relative));
   }
 
   return Promise.all(promises);

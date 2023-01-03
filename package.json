@@ -12,7 +12,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "version": "./bump-version.sh",
     "build": "npm run build:deps && npm run build:noEvalDecoder && npm run build:noEvalWorkerDecoder",
-    "build:noEvalWorkerDecoder": "npm run build:webEvalWorkerDecoder -- -sDYNAMIC_EXECUTION=0",
+    "build:noEvalWorkerDecoder": "npm run build:workerDecoder -- -sDYNAMIC_EXECUTION=0",
     "build:workerDecoder": "npm run build:webDecoder -- -o ./out/worker/pthread.js -sPTHREAD_POOL_SIZE_STRICT=2 -sPTHREAD_POOL_SIZE=2",
     "build:noEvalDecoder": " npm run build:webDecoder -- -o ./out/background.js -sDYNAMIC_EXECUTION=0",
     "build:webDecoder": "npm run build:wasmdeps -- ./emscripten/decoder.cc -lembind -lidbfs.js --pre-js ./out/index.js --post-js emscripten/post.js",

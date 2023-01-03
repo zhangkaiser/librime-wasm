@@ -4,7 +4,7 @@ import { IMessageObjectType } from "src/api/common/message";
 import { Disposable } from "src/api/common/disposable";
 import { registerEventDisposable } from "src/api/extension/event";
 
-const fdSyncDepsID = "fd syncData";
+const fdSyncDepsID = "fd->syncData";
 
 export class Controller extends Disposable {
   
@@ -84,7 +84,9 @@ export class Controller extends Disposable {
     onmessage = (ev) => {
       let { data } = ev.data as IMessageObjectType;
       let {type, value} = data;
-      if (type in imeHandler) imeHandler[type](...value);
+      if (type in imeHandler) {
+        postMessage({data: { type, value: [imeHandler[type](...value)] }});
+      }
     }
   }
 

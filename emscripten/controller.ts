@@ -8,7 +8,7 @@ const fdSyncDepsID = "fd.syncData";
 
 export class Controller extends Disposable {
   
-  isChrome  = Reflect.has(globalThis, "chrome");
+  isChrome  = Reflect.has(globalThis, "chrome") && Reflect.has(chrome, "runtime");
   isChromeIME = this.isChrome && Reflect.has(chrome, "input");
 
   loadedPromise?: Promise<void>;

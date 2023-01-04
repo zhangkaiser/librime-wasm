@@ -72,7 +72,6 @@ export class Controller extends Disposable {
     if (!ENVIRONMENT_IS_WORKER) return;
     if (typeof postMessage !== "function") return; 
     imeHandler.mainWorker = true;
-    
 
     this.printErr = (...args) => 
       postMessage({ data: { type: "printErr", value: args }});

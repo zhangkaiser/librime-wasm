@@ -40,6 +40,7 @@ export class IMEHandler implements IIMEHandler {
 
   onFocus(context: chrome.input.ime.InputContext) {
     this.contextID = context.contextID;
+    this.flushCache();
     this.hide();
     this.clearComposition();
   }
@@ -220,7 +221,6 @@ export class IMEHandler implements IIMEHandler {
 
   writeToUserDB(files: FileList):Promise<boolean[]> | undefined {
     if (!isDir(files[0])) return;
-
     return writeFileFromFileList(FS, files, "data/user", false);
   }
 
@@ -239,7 +239,7 @@ export class IMEHandler implements IIMEHandler {
   /** Sync to IDBFS. */
   flushCache() {
     FS.syncfs(false, (err) => {
-      // if (err)  return console.error(err);
+      if (err)  return console.error(err);
     })
   }
 

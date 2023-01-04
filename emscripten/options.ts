@@ -53,8 +53,11 @@ async function main() {
     let { type, value } = data;
     if (type === "printErr") {
       printErr(...value);
-    } else if (type === "update_state") {
-
+    } else if (type === "updateData") {
+      if (value[0]) alert("Update success.");
+      else alert("Update failture.");
+    } else if (type === "flushCache") {
+      alert("Save success");
     }
   } 
 }

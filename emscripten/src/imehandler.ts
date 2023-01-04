@@ -46,7 +46,7 @@ export class IMEHandler implements IIMEHandler {
   }
 
   checkDecoder() {
-    if (!this.#decoder && DecoderModule) {
+    if (!this.#decoder && DecoderModule && Reflect.has(DecoderModule, 'Decoder')) {
       this.decoder = new DecoderModule.Decoder();
     }
   }
@@ -61,7 +61,6 @@ export class IMEHandler implements IIMEHandler {
       }
 
       if (/^[A-Z]$/.test(keyEvent.key)) return true;
-
     }
 
     return false;

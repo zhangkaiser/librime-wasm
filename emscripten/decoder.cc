@@ -18,6 +18,20 @@ void on_message(void* context_object,
   EM_ASM({
     imeHandler.onNotification(UTF8ToString($0), UTF8ToString($1));
   }, message_type, message_value);
+
+  RimeApi* rime = rime_get_api();
+  if (RIME_API_AVAILABLE(rime, get_state_label) 
+    && !strcmp(message_type, "option")
+  ) {
+    Bool state = message_value[0] != '!';
+    const char* option_name = message_value + !state;
+    const char* state_label =
+        rime->get_state_label(session_id, option_name, state);
+    if (state_label) {
+      printf("updated option: %s = %d // %s\n", option_name, state, state_label);
+    }
+  }
+
 }
 
 class Decoder {

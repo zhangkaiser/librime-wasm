@@ -22,7 +22,8 @@ export class IMEHandler implements IIMEHandler {
 
   initialize() {
     this.checkDecoder();
-    this.inited = !!this.#decoder?.initialize(true);
+    this.#decoder?.initialize(false);
+    this.inited = true;
   }
 
   set decoder(value: IDecoder | undefined) {

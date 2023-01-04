@@ -21,12 +21,6 @@ export class Controller extends Disposable {
     FS.syncfs(true, (err) => {
       if (err) return console.error(err);
       this.inited = true;
-      try {
-        FS.mkdir("data/user");
-      } catch(e) {
-        // pass.
-      }
-      FS.symlink("/opencc", "data/user/opencc");
       removeRunDependency(fdSyncDepsID);
     })
   }

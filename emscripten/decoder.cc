@@ -5,10 +5,14 @@
 #include <emscripten.h>
 #include <rime_api.h>
 #include <rime/key_event.h>
+#include <rime/service.h>
+#include <rime/registry.h>
+#include <rime/module.h>
 
 #include "define.h"
 using namespace emscripten;
 using namespace std;
+using namespace rime;
 
 void on_message(void* context_object,  
       RimeSessionId session_id,
@@ -18,19 +22,6 @@ void on_message(void* context_object,
   EM_ASM({
     imeHandler.onNotification(UTF8ToString($0), UTF8ToString($1));
   }, message_type, message_value);
-
-  RimeApi* rime = rime_get_api();
-  if (RIME_API_AVAILABLE(rime, get_state_label) 
-    && !strcmp(message_type, "option")
-  ) {
-    Bool state = message_value[0] != '!';
-    const char* option_name = message_value + !state;
-    const char* state_label =
-        rime->get_state_label(session_id, option_name, state);
-    if (state_label) {
-      printf("updated option: %s = %d // %s\n", option_name, state, state_label);
-    }
-  }
 
 }
 
@@ -47,7 +38,13 @@ class Decoder {
     }
 
     ~Decoder() {
-      rime_->finalize();
+      if (is_update) {
+        rime_->finalize();
+      } else {
+        Service::instance().StopService();
+        Registry::instance().Clear();
+        ModuleManager::instance().UnloadModules();
+      }
     }
 
     bool initialize(
@@ -72,7 +69,7 @@ class Decoder {
     }
 
     bool update() {
-      
+      is_update = True;
       rime_->setup(traits_);
       rime_->initialize(NULL);
 
@@ -214,6 +211,7 @@ class Decoder {
 
   private:
     RimeApi* rime_;
+    Bool is_update = False;
 
     RimeSessionId session_id_;
     RimeContext *context_;

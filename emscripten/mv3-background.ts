@@ -13,31 +13,24 @@ registerEventDisposable(chrome.runtime.onInstalled, controller.onInstalled);
 
 registerEventDisposable(chrome.runtime.onConnectExternal, (port) => {
   imePort = port;
-  imePort.onMessage.addListener((msg, port) => {
-    pagePort?.postMessage(msg);
-  })
+  imePort.onMessage.addListener(
+    (msg, port) => pagePort?.postMessage(msg)
+  );
   if (openStatus) return;
-  chrome.tabs.create({
-    active: true,
-    url: "./main.html"
-  }, (tabs) => {
-  });
+  chrome.tabs.create(
+    { active: true, url: "./main.html"}, 
+    (tabs) => openStatus = true);
 });
 
 registerEventDisposable(chrome.runtime.onConnect, (port) => {
   pagePort = port;
   openStatus = true;
+
   port.onDisconnect.addListener(() => {
     openStatus = false;
     imePort?.disconnect();
   });
-
-  port.onMessage.addListener((msg, port) => {
-    imePort?.postMessage(msg);
-  })
-})
-
-registerEventDisposable(chrome.runtime.onMessage, (msg: IMessageObjectType, sender, response) => {
-  let {type, value} = msg.data;
-  if (type == "close") openStatus = false;
-})
+  port.onMessage.addListener(
+    (msg, port) => imePort?.postMessage(msg)
+  );
+});

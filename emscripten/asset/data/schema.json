@@ -1,0 +1,17 @@
+{
+  "lists": [
+    ["luna_pinyin", "朙月拼音", []],
+    ["cangjie5", "仓颉五代", ["luna_pinyin"]],
+    ["pinyin_simp", "简体拼音", []],
+    ["double_pinyin_abc", "智能ABC双拼", ["luna_pinyin"]],
+    ["double_pinyin", "自然码双拼", ["luna_pinyin"]],
+    ["double_pinyin_flypy", "小鹤拼音", ["luna_pinyin"]],
+    ["double_pinyin_pyjj", "拼音加加双拼", ["luna_pinyin"]],
+    ["double_pinyin_mspy", "微软双拼", ["luna_pinyin"]],
+    ["wubi86_jidian", "极点五笔86", ["pinyin_simp"]],
+    ["wubi86_jidian_pinyin", "极点五笔86+拼音", ["pinyin_simp"]],
+    ["wubi86_jidian_trad", "极点五笔86->繁体输出", ["pinyin_simp"]],
+    ["wubi86_jidian_trad_pinyin", "极点五笔86+拼音->繁体输出", ["pinyin_simp"]],
+    ["easy_en", "Easy English", []]
+  ]
+}

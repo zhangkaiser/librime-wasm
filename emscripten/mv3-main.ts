@@ -1,11 +1,5 @@
-import { IMessageObjectType } from "src/api/common/message"
+import { Disposable } from "src/api/common/disposable";
 
-window.onclose = () => {
-  let msg: IMessageObjectType = {
-    data: {
-      type: "close",
-      value: []
-    }
-  }
-  chrome.runtime.sendMessage(msg);
-}
+let port = chrome.runtime.connect();
+Disposable.delete(controller, "onConnectExternal");
+controller.handleChromeExternalConnect(port);

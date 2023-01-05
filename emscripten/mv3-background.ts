@@ -6,18 +6,36 @@ let controller = new Controller;
 
 let openStatus = false;
 
+let imePort: chrome.runtime.Port | undefined = undefined;
+let pagePort: chrome.runtime.Port | undefined = undefined;
+
 registerEventDisposable(chrome.runtime.onInstalled, controller.onInstalled);
 
 registerEventDisposable(chrome.runtime.onConnectExternal, (port) => {
+  imePort = port;
+  imePort.onMessage.addListener((msg, port) => {
+    pagePort?.postMessage(msg);
+  })
   if (openStatus) return;
   chrome.tabs.create({
-    active: false,
+    active: true,
     url: "./main.html"
   }, (tabs) => {
-    console.log(tabs);
-    port.disconnect();
+    openStatus = true;
   });
 });
+
+registerEventDisposable(chrome.runtime.onConnect, (port) => {
+  pagePort = port;
+  port.onDisconnect.addListener(() => {
+    openStatus = false;
+    imePort?.disconnect();
+  });
+
+  port.onMessage.addListener((msg, port) => {
+    imePort?.postMessage(msg);
+  })
+})
 
 registerEventDisposable(chrome.runtime.onMessage, (msg: IMessageObjectType, sender, response) => {
   let {type, value} = msg.data;

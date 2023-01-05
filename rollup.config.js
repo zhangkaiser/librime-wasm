@@ -14,10 +14,15 @@ export default [
     treeshake: false
   },
   {
-    input: "emscripten/options.ts",
+    input: {
+      "options":"emscripten/options.ts",
+      "background": "emscripten/mv3-background.ts",
+      "mv3-main": "emscripten/mv3-main.ts"
+    },
     output: {
-      file: "out/options.js",
-      format: "es"
+      format: "es",
+      dir: "out",
+      entryFileNames: "[name].js"
     },
     plugins: [
       rollupTypescript()

@@ -123,5 +123,9 @@ export class Controller extends Disposable {
 
   }
 
+  onInstalled() {
+    chrome.runtime.openOptionsPage();
+  }
+
 }
 

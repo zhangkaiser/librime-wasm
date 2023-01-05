@@ -113,6 +113,9 @@ export class IMEHandler implements IIMEHandler {
       if (keyEvent.key === "Shift" && this._lastKeyIsShift) {
         this.shiftLock = !this.shiftLock;
       }
+      if (this.visible) {
+        this.shiftLock = false;
+      }
 
       this.handleResponse(requestId, false);
     }

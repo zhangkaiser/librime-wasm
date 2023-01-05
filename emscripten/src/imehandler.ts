@@ -108,7 +108,10 @@ export class IMEHandler implements IIMEHandler {
       let response = this.decoder?.processKey(key);
       this.handleResponse(requestId, !!response);
       if (response) this.decoder?.notifyUpdate();
-
+      else if (this.visible) { 
+        this.#decoder?.processKey("Return");
+        this.decoder?.notifyUpdate();
+       };
     } else {
       if (keyEvent.key === "Shift" && this._lastKeyIsShift) {
         this.shiftLock = !this.shiftLock;
@@ -117,7 +120,8 @@ export class IMEHandler implements IIMEHandler {
         this.shiftLock = false;
       }
 
-      this.handleResponse(requestId, false);
+      // TODO（keyup在Constini(Linux)的应用内有时会重复触发多次。)
+      this.handleResponse(requestId, true);
     }
   }
 

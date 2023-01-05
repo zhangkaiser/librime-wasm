@@ -21,12 +21,12 @@ registerEventDisposable(chrome.runtime.onConnectExternal, (port) => {
     active: true,
     url: "./main.html"
   }, (tabs) => {
-    openStatus = true;
   });
 });
 
 registerEventDisposable(chrome.runtime.onConnect, (port) => {
   pagePort = port;
+  openStatus = true;
   port.onDisconnect.addListener(() => {
     openStatus = false;
     imePort?.disconnect();

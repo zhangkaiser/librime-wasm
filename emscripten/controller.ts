@@ -104,7 +104,6 @@ export class Controller extends Disposable {
     if (!this.isChromeIME) return;
   }
 
-
   handleChromeExternalConnect(port: chrome.runtime.Port) {
     imeHandler.port = port;
     port.onMessage.addListener((msg, port) => {

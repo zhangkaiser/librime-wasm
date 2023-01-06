@@ -111,17 +111,19 @@ export class IMEHandler implements IIMEHandler {
       else if (this.visible) { 
         this.#decoder?.processKey("Return");
         this.decoder?.notifyUpdate();
-       };
+      };
+
     } else {
       if (keyEvent.key === "Shift" && this._lastKeyIsShift) {
         this.shiftLock = !this.shiftLock;
       }
+
       if (this.visible) {
         this.shiftLock = false;
       }
 
       // TODO（keyup在Constini(Linux)的应用内有时会重复触发多次。)
-      this.handleResponse(requestId, true);
+      this.handleResponse(requestId, false);
     }
   }
 

@@ -1,5 +1,28 @@
-
+import * as fs from "fs";
+import * as path from "path";
 import rollupTypescript from "@rollup/plugin-typescript";
+
+function resolveCSS() {
+  return {
+    name: "resovleCSS",
+    resolveId(source, importer) {
+      if (source.endsWith(".css")) {
+        return path.resolve(path.dirname(importer), source);        
+      }
+      return null;
+    },
+    load(id) {
+      if (id.endsWith(".css")) {
+        let cssContent = fs.readFileSync(id);
+        return `
+          import {css} from "lit";
+          export default css\`${cssContent}\`;
+        `;
+      }
+      return null;
+    }
+  }
+}
 
 export default [
   {
@@ -22,10 +45,11 @@ export default [
     output: {
       format: "es",
       dir: "out",
-      entryFileNames: "[name].js"
+      entryFileNames: "[name].js",
     },
     plugins: [
-      rollupTypescript()
+      rollupTypescript(),
+      resolveCSS()
     ]
   },
 ]

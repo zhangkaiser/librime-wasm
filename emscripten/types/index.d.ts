@@ -19,3 +19,7 @@ declare module globalThis {
   var ENVIRONMENT_IS_NODE: boolean;
   var ENVIRONMENT_IS_SHELL: boolean;
 }
+
+module "*.css" {
+  export default style;
+}

@@ -84,3 +84,15 @@ export function getExtensionPackageFiles(path: string | string[], options: IGetF
   })
   
 }
+
+
+export function getFileList(entries: FileEntry[]) {
+  let fileListPromise = entries.map(
+    (fileEntry) => 
+      new Promise((resolve, reject) => {
+        fileEntry.file(resolve, reject);
+      }) as Promise<File>
+  );
+
+  return Promise.all(fileListPromise);
+}

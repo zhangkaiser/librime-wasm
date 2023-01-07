@@ -103,6 +103,7 @@ export function writeFileAndDecompressionFromFileList(fs: typeof FS, files: File
         }
         return false;
       }));
+      return ;
     }
 
     promises.push(writeFileFromFile(fs, file, path, relative));

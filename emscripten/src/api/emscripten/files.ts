@@ -51,34 +51,38 @@ export async function downloadFileUseChromeTabsAPI(fs: typeof FS, path: string) 
   });
 }
 
-export function writeFileFromFile(fs: typeof FS,file: File, path = "", isRelative = false) {
-  
-  return file.arrayBuffer().then((buffer) => {
-
-    let basePath = "";
-    if (isRelative) {
-      basePath = path;
-      path = path + "/" + file.name;
-    } else {
-      path = (path ? path + "/" : "") + (file.webkitRelativePath ? file.webkitRelativePath : file.name);
-      basePath = path.replace(file.name, "");
-    }
-    
-    try {
-      (fs as any).createPath("/", basePath, true, true);
-      FS.createDataFile(path, "", new Uint8Array(buffer), true, true, true)
-      // let bufferView = new DataView(buffer);
-      // fs.writeFile(path, bufferView);
-
-      return true;
-    } catch(e) {
-      return false;
-    }
-  });
+export interface IFile {
+  u8: Uint8Array;
+  name: string;
+  webkitRelativePath?: string;
 }
 
-export function writeFileFromFileList(fs: typeof FS, files: FileList, path: string = "", relative: boolean = true) {
-    
+export async function writeFileFromFile(fs: typeof FS,file: File | IFile, path = "", isRelative = false) {
+  
+  let basePath = "";
+  if (isRelative) {
+    basePath = path;
+    path = path + "/" + file.name;
+  } else {
+    path = (path ? path + "/" : "") + (file.webkitRelativePath ? file.webkitRelativePath : file.name);
+    basePath = path.replace(file.name, "");
+  }
+
+  let fileData;
+  if (file instanceof File) {
+    let buffer = await file.arrayBuffer();
+    fileData = new Uint8Array(buffer);
+  } else {
+    fileData = file.u8;
+  }
+
+  (fs as any).createPath("/", basePath, true, true);
+  FS.createDataFile(path, "", fileData, true, true, true);
+  return true;
+}
+
+export function writeFileFromFileList(fs: typeof FS, files: (File | IFile)[] | FileList, path: string = "", relative: boolean = true) {
+  
   let promises = [];
   for (let file of files) {
     promises.push(writeFileFromFile(fs, file, path, relative));
@@ -91,18 +95,22 @@ export function writeFileAndDecompressionFromFileList(fs: typeof FS, files: File
   let promises = [];
   for (let file of files) {
 
-    
     if (/\.gz$/.test(file.name)) {
       let names = file.name.split(".");
       let compressFormat =  names.pop();
       let reader = decompressionFile(file, "gzip").getReader();
-      promises.push(reader.read().then(readStreamReadResult => {
-        if (readStreamReadResult.value) {
-          file = new File([readStreamReadResult.value as Uint8Array], names.join("."));
-          return writeFileFromFile(fs, file, path, relative);
-        }
-        return false;
-      }));
+      promises.push(
+        reader.read().then(readStreamReadResult => {
+          if (readStreamReadResult.value) {
+            
+            return writeFileFromFile(fs, {
+              u8:readStreamReadResult.value,
+              name: names.join(".")
+            }, path, relative);
+          }
+          return false;
+        }),
+      );
     } else {
       promises.push(writeFileFromFile(fs, file, path, relative));
     }

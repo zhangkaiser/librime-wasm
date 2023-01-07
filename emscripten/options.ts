@@ -47,8 +47,14 @@ class OptionsPage extends LitElement {
 
   static style = style;
   
-  @state()
+  @state({
+    hasChanged(value, oldValue) {
+      return true;
+    }
+})
   lists: [string, string, string[]][] = [];
+
+  @property({type: Boolean}) loaded = false;
 
   choosedSchemas: Record<number, [string, string, string[]]> = {};
 
@@ -59,7 +65,9 @@ class OptionsPage extends LitElement {
     this.schema = new Schema();
 
     this.schema.getSchemaData().then((data) => {
+      console.log(data);
       this.lists = data.lists;
+      this.loaded = true;
     });
 
   }
@@ -74,7 +82,6 @@ class OptionsPage extends LitElement {
 
   async createSchemasFromBuiltin() {
     if (!Object.keys(this.choosedSchemas).length) return alert("没有选择方案。");
-    await this.schema.setRequiredFiles();
     let names = [];
     for (let index in this.choosedSchemas) {
       let schemaItem = this.choosedSchemas[index];
@@ -91,17 +98,17 @@ class OptionsPage extends LitElement {
 <div>
   <section>
     <h3>选择内置的输入方案</h3>
-    <div calss="">
-        ${this.lists.forEach((item, index) => html`
+    <div class="">
+        ${this.lists.map((item, index) => html`
           <div>
             <span>
               <input type="checkbox" @click=${this.onClickSchema} id="schema-${index}"></input>
               <span>${item[1]}</span>
             </span>
-          </div>
+          </div> 
         `)}
         <div>
-          <button @click=${this.createSchemasFromBuiltin}></button>
+          <button @click=${this.createSchemasFromBuiltin}>部署方案</button>
         </div>
     </div>
   </section>
@@ -138,7 +145,7 @@ class OptionsPage extends LitElement {
 
   render() {
     return html`
-
+    ${this.schemaLists()}
     `;
   }
 }
@@ -148,15 +155,20 @@ let container = document.getElementById("container");
 async function main() {
   render(html`
   <options-page id=""></options-page>
+  <textarea id="infos" rows="24"></textarea>
   `, container!);
 
 
   let worker = new Worker("./worker/pthread.js");
-  let imeHandler = convertToPortInstance(IMEHandler as any, worker, [
+  globalThis.imeHandler = convertToPortInstance(IMEHandler as any, worker, [
     "writeToSharedData",
     "writeToData",
     "updateData",
-    "flushCache"
+    "flushCache",
+    "writeFiles",
+    "writeToBuild",
+    "writeToSharedData",
+    "writeToUserDB"
   ]) as InstanceType<typeof IMEHandler>;
 
   registerFileHandler(imeHandler);

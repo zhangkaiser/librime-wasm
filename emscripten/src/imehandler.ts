@@ -1,7 +1,7 @@
 import { DecoderModule, IComposition, IDecoder, IIMEHandler, IWindowProperties } from "./interfaces";
 import { kNormalKeyMap } from "./consts";
 import { isDir } from "src/api/common/files";
-import { writeFileFromFile, writeFileFromFileList } from "src/api/emscripten/files";
+import { writeFileAndDecompressionFromFileList, writeFileFromFile, writeFileFromFileList } from "src/api/emscripten/files";
 import { IMiniPort } from "src/api/common/port";
 
 export class IMEHandler implements IIMEHandler {
@@ -243,6 +243,10 @@ export class IMEHandler implements IIMEHandler {
 
   writeToData(files: FileList) {
     return writeFileFromFileList(FS, files, "data", false);
+  }
+
+  writeFiles(path: string, files: FileList) {
+    return writeFileAndDecompressionFromFileList(FS, files, path, true);
   }
 
   /** Sync to IDBFS. */

@@ -1,4 +1,5 @@
 import { getExtensionPackageFiles, getFileList } from "src/api/extension/file";
+import { IMEHandlerInstance } from "./imehandler";
 
 interface ISchemaData { 
   lists: [
@@ -12,8 +13,8 @@ let _schemaData: Promise<ISchemaData>;
 let _schemaEntries: Promise<FileEntry[]>;
 
 export class Schema {
-  writeFiles: [string, (FileEntry | File)[]][] = [];
-  schemaDeps = new Set<FileEntry>();
+  requiredFiles: [string, File[]][] = [];
+  schemaDepFiles = new Set<FileEntry>();
   defaultSettingFile?: File;
   
   getSchemaData() {
@@ -38,13 +39,14 @@ export class Schema {
         return text.replace("- schema: double_pinyin_pyjj", nameStr);
       }).then((text) => {
         this.defaultSettingFile = new File([text], "default.yaml");
+        return text;
       });
   }
 
   async setRequiredFiles() {
     let entries = await getExtensionPackageFiles("./data/opencc");
     let fileList = await getFileList(entries);
-    this.writeFiles.push(["data/user/opencc", fileList]);
+    this.requiredFiles.push(["data/user/opencc", fileList]);
 
     entries = await getExtensionPackageFiles([
       "./data/installation.yaml",
@@ -52,22 +54,39 @@ export class Schema {
     ]);
     fileList = await getFileList(entries);
   
-    this.writeFiles.push(["data/user", fileList]);
+    this.requiredFiles.push(["data/user", fileList]);
   }
 
   async setSchemaDepsFiles(name: string, deps: string[]) {
     let schemaEntries = await this.getSchemeEntries();
     let lists = [name, ...deps];
-    schemaEntries.filter(
-      (fileEntry) => (lists.indexOf(fileEntry.name.split(".")[0]) > -1)
-    ).forEach((fileEntry) => this.schemaDeps.add(fileEntry));
+    schemaEntries.forEach(
+      (fileEntry) => {
+        if (lists.indexOf(fileEntry.name.split(".")[0]) > -1) {
+          this.schemaDepFiles.add(fileEntry);
+        }
+      }
+    );
   }
 
   async runSchemaCreating() {
-    let lists = [];
-    this.writeFiles.forEach(() => {
+    await this.setRequiredFiles();
 
-    })
+    this.requiredFiles.forEach((item) => {
+      (imeHandler as IMEHandlerInstance).writeFiles(item[0], item[1] as any as FileList);
+    });
 
+    let depFiles = await getFileList(new Array(...this.schemaDepFiles));
+    (imeHandler as IMEHandlerInstance).writeFiles(
+      "data/build",
+      depFiles as any as FileList
+    );
+
+    if (this.defaultSettingFile) {
+      (imeHandler as IMEHandlerInstance).writeToBuild([this.defaultSettingFile] as any as FileList);
+      return true;
+    }
+
+    return false;
   }
 }

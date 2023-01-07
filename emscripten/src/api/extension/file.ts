@@ -4,7 +4,6 @@ function getEntries(entry: FileSystemDirectoryEntry, filePromiseLists:Promise<Fi
 
   return new Promise(async (resolve, reject) => {
     if (entry.isDirectory) {
-      console.log("dir", entry.fullPath);
       let reader = entry.createReader();
 
       await new Promise(async (resolve1, reject1) => {
@@ -19,7 +18,6 @@ function getEntries(entry: FileSystemDirectoryEntry, filePromiseLists:Promise<Fi
         }, reject1);
       });
     } else {
-      console.log("file", entry.fullPath, filePromiseLists.length);
       filePromiseLists.push(Promise.resolve(entry as any as FileEntry));
     }
     resolve(true);
@@ -45,7 +43,6 @@ export function getExtensionPackageFiles(path: string | string[], options: IGetF
             new Promise((resolve1, reject1) => {
               rootEntry.getFile(filePath, {}, (fileEntry) => {
                 if (fileEntry.isFile) {
-                  console.log("file", fileEntry.name);
                   resolve1(fileEntry)
                 }
                 reject1();
@@ -60,7 +57,6 @@ export function getExtensionPackageFiles(path: string | string[], options: IGetF
 
             rootEntry.getDirectory(path, {}, (pathEntry) => {
               getEntries(pathEntry, filePromiseLists, options.recursive).then((bool) => {
-                console.log(bool);
                 resolve1(bool);
               }).catch(reject1);
             }, reject1);

@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import rollupTypescript from "@rollup/plugin-typescript";
+import nodeResolve from "@rollup/plugin-node-resolve";
 
 function resolveCSS() {
   return {
@@ -46,10 +47,14 @@ export default [
       format: "es",
       dir: "out",
       entryFileNames: "[name].js",
+      manualChunks: {
+        lit: ['lit']
+      }
     },
     plugins: [
       rollupTypescript(),
-      resolveCSS()
+      resolveCSS(),
+      nodeResolve(),
     ]
   },
 ]

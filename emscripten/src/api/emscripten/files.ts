@@ -1,3 +1,4 @@
+import { decompressionFile } from "src/api/common/compress";
 
 export function getFilenameByPath(path: string) {
   let paths = path.split('/').filter((p) => !!p);
@@ -84,4 +85,29 @@ export function writeFileFromFileList(fs: typeof FS, files: FileList, path: stri
   }
 
   return Promise.all(promises);
+}
+
+export function writeFileAndDecompressionFromFileList(fs: typeof FS, files: FileList, path: string = "", relative: boolean = true) {
+  let promises = [];
+  for (let file of files) {
+
+    
+    if (/\.gz$/.test(file.name)) {
+      let names = file.name.split(".");
+      let compressFormat =  names.pop();
+      let reader = decompressionFile(file, "gzip").getReader();
+      promises.push(reader.read().then(readStreamReadResult => {
+        if (readStreamReadResult.value) {
+          file = new File([readStreamReadResult.value as Uint8Array], names.join("."));
+          return writeFileFromFile(fs, file, path, relative);
+        }
+        return false;
+      }));
+    }
+
+    promises.push(writeFileFromFile(fs, file, path, relative));
+  }
+
+  return Promise.all(promises);
+
 }

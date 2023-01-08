@@ -52,7 +52,8 @@ export async function downloadFileUseChromeTabsAPI(fs: typeof FS, path: string) 
 }
 
 export interface IFile {
-  u8: Uint8Array;
+  stream?: ReadableStream;
+  u8?: Uint8Array;
   name: string;
   webkitRelativePath?: string;
 }
@@ -73,7 +74,13 @@ export async function writeFileFromFile(fs: typeof FS,file: File | IFile, path =
     let buffer = await file.arrayBuffer();
     fileData = new Uint8Array(buffer);
   } else {
-    fileData = file.u8;
+    if (file.stream) {
+      fileData = new Uint8Array(await new Response(file.stream).arrayBuffer());
+    } else if(file.u8) {
+      fileData = file.u8;
+    } else {
+      throw new Error("Empty file.");
+    }
   }
 
   (fs as any).createPath("/", basePath, true, true);
@@ -91,26 +98,21 @@ export function writeFileFromFileList(fs: typeof FS, files: (File | IFile)[] | F
   return Promise.all(promises);
 }
 
-export function writeFileAndDecompressionFromFileList(fs: typeof FS, files: FileList, path: string = "", relative: boolean = true) {
+export function writeFileAndDecompressionFromFileList(fs: typeof FS, files: FileList | File[], path: string = "", relative: boolean = true) {
   let promises = [];
   for (let file of files) {
 
     if (/\.gz$/.test(file.name)) {
       let names = file.name.split(".");
       let compressFormat =  names.pop();
-      let reader = decompressionFile(file, "gzip").getReader();
-      promises.push(
-        reader.read().then(readStreamReadResult => {
-          if (readStreamReadResult.value) {
-            
-            return writeFileFromFile(fs, {
-              u8:readStreamReadResult.value,
-              name: names.join(".")
-            }, path, relative);
-          }
-          return false;
-        }),
-      );
+      let readableStream = decompressionFile(file, "gzip");
+
+      promises.push(writeFileFromFile(
+        fs, 
+        { stream: readableStream, name: names.join(".") }, 
+        path, 
+        relative
+      ));
     } else {
       promises.push(writeFileFromFile(fs, file, path, relative));
     }

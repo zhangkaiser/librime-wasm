@@ -5,10 +5,14 @@ import { customElement, property, state } from "lit/decorators.js";
 import { IMessageObjectType } from "src/api/common/message";
 import { convertToPortInstance } from "src/api/common/port";
 import { getPrintWithTextareaElement } from "src/api/emscripten/io";
-import { IMEHandler } from "src/imehandler";
+import { IMEHandler, IMEHandlerInstance } from "src/imehandler";
 import { Schema } from "src/schema";
 
-import style from "./css/pages.css";
+import styles from "./css/pages.css";
+
+declare global {
+  var stopWorker: Function;
+}
 
 
 function registerFileHandler(imeHandler: IMEHandler) {
@@ -45,7 +49,7 @@ function registerFileHandler(imeHandler: IMEHandler) {
 @customElement("options-page")
 class OptionsPage extends LitElement {
 
-  static style = style;
+  static styles = styles;
   
   @state({
     hasChanged(value, oldValue) {
@@ -53,8 +57,8 @@ class OptionsPage extends LitElement {
     }
 })
   lists: [string, string, string[]][] = [];
-
-  @property({type: Boolean}) loaded = false;
+  @state()
+  imeWasRunning = false;
 
   choosedSchemas: Record<number, [string, string, string[]]> = {};
 
@@ -65,9 +69,7 @@ class OptionsPage extends LitElement {
     this.schema = new Schema();
 
     this.schema.getSchemaData().then((data) => {
-      console.log(data);
       this.lists = data.lists;
-      this.loaded = true;
     });
 
   }
@@ -78,6 +80,40 @@ class OptionsPage extends LitElement {
     let index = +(id.split("-")[1]);
     if (checked) this.choosedSchemas[index] = this.lists[index];
     else if (this.choosedSchemas[index]) delete this.choosedSchemas[index];
+  }
+
+  onFilePickerChange(ev: Event) {
+    let target = ev.target as HTMLInputElement;
+    let {id, files} = target;
+
+    if (!files) return alert("上传文件为空");
+
+    switch(id) {
+      case "addSourceDataFiles":
+        (imeHandler as IMEHandlerInstance).writeToSharedData(files);
+        break;
+      case "addBuiltDataFiles":
+      case "addYamlDataFiles":
+        (imeHandler as IMEHandlerInstance).writeToBuild(files);
+        break;
+    }
+  }
+
+  onBtnClick(ev: Event) {
+    let target = ev.target as HTMLButtonElement;
+    let {id} = target;
+
+    switch(id) {
+      case "cancel":
+        stopWorker();
+        break;
+      case "save":
+        imeHandler.flushCache();
+    }
+  }
+
+  onRefresh(ev: Event) {
+    location.reload();
   }
 
   async createSchemasFromBuiltin() {
@@ -91,6 +127,18 @@ class OptionsPage extends LitElement {
     await this.schema.setDefaultFile(names);
 
     this.schema.runSchemaCreating();
+  }
+
+  imeIgnore() {
+    return html`
+<div class="">
+  <div>
+    <span>
+      <p style="color: red;">需要先关闭RIME的其他页面/切换到其它输入法后并刷新此页面才能配置成功，否则无法成功配置输入法功能。</p>
+    </span>
+  </div>
+</div>
+`;
   }
 
   schemaLists() {
@@ -116,16 +164,33 @@ class OptionsPage extends LitElement {
     `;
   }
 
+  customSchemeFile() {
+    return html`
+<div>
+  <section>
+    <h3>自定义内容</h3>
+    <div class="chunk">
+    ${this.addCustomBuild()}
+    </div>
+    <div class="chunk">
+    ${this.addBuiltData()}
+    </div>
+    <div class="chunk">
+    ${this.updateYamlFile()}
+    </div>
+  </section>
+</div>
+    `;
+  }
+
   addCustomBuild() {
     return html`
       <div class="fix">
         <span>
-          <span>添加原始文件（未构建的文件）</span>
-          <input id="addSourceDataFiles" type="file" accept=".yaml,.txt" multiple />
+          <span class="controlled-setting-with-label">添加原始文件（未构建的文件）</span>
+          <input @change=${this.onFilePickerChange} id="addSourceDataFiles" type="file" accept=".yaml,.txt" multiple />
         </span>
-        <div class="desc">
-
-        </div>
+        <div class="desc">可以选择未构建的方案进行构建（在构建大型词库文件时可能耗时较长，建议使用已构建好的文件进行部署。），需要把所需要所有文件一起选择上传(主要包含.yaml, .txt两类文件)</div>
       </div>
     `;
   }
@@ -133,9 +198,27 @@ class OptionsPage extends LitElement {
   updateYamlFile() {
     return html`
       <div>
-      更新构建的文件（例如:default.yaml, default.custom.yaml...）
+        <span class="controlled-setting-with-label">
+          <span>修改yaml/bin文件：</span>
+          <input @change=${this.onFilePickerChange} id="addYamlDataFiles" type="file" accept=".yaml" multiple />
+        </span>
+        <div class="desc">例如:luna_pinyin.schema.yaml,default.yaml, luna_pinyin.[table|reverse|prism].bin已构建的配置项文件(文件已__build_info开头的文件夹)，暂不支持已custom.yaml结尾的文件，建议先把custom.yaml文件合并到已构建的schema.yaml文件中</div>
       </div>
     `;
+  }
+
+  addBuiltData() {
+    return html`
+      <div>
+        <span class="controlled-setting-with-label">
+          <span>上传已构建的文件夹:</span>
+          <input @change=${this.onFilePickerChange} type="file" id="addBuiltData" webkitdirectory multiple></input>
+        </span>
+        <div class="desc">
+          包含已构建的字库二进制文件(.bin文件)和已构建的用户配置项文件(.yaml文件并且文件已__build_info开头(包含已构建的default.yaml))，两类格式的文件都应该放在同一目录下并选择目录进行上传。
+        </div>
+      </div>
+    `
   }
 
   commitUpdate() {
@@ -145,7 +228,14 @@ class OptionsPage extends LitElement {
 
   render() {
     return html`
+    ${this.imeIgnore()}
     ${this.schemaLists()}
+    ${this.customSchemeFile()}
+
+    <div class="">
+      <button id="cancel" @click=${this.onBtnClick}>停止构建</button>
+      <button id="save" @click=${this.onBtnClick}>同步此次修改</button>
+    </div>
     `;
   }
 }
@@ -160,6 +250,12 @@ async function main() {
 
 
   let worker = new Worker("./worker/pthread.js");
+
+  globalThis.stopWorker = () => {
+    worker.terminate();
+    alert("已停止构建，如需要重新构建请刷新页面后进行配置");
+  }
+
   globalThis.imeHandler = convertToPortInstance(IMEHandler as any, worker, [
     "writeToSharedData",
     "writeToData",
@@ -167,7 +263,6 @@ async function main() {
     "flushCache",
     "writeFiles",
     "writeToBuild",
-    "writeToSharedData",
     "writeToUserDB"
   ]) as InstanceType<typeof IMEHandler>;
 
@@ -179,15 +274,32 @@ async function main() {
   worker.onmessage = (ev) => {
     let  { data } = ev.data as IMessageObjectType;
     let { type, value } = data;
-    if (type === "printErr") {
-      printErr(...value);
-    } else if (type === "updateData") {
-      if (value[0]) alert("Update success.");
-      else alert("Update failture.");
-    } else if (type === "flushCache") {
-      alert("Save success");
+
+    switch (type) {
+      case "printErr":
+        printErr(...value);
+        break;
+      case "updateData":
+        if (value[0]) alert("构建已完成，请点击`同步此次修改`按钮");
+        else alert("构建失败！建议使用本地已构建的文件进行配置输入方案。");
+        break;
+      case "flushCache":
+        alert("方案已部署成功，扩展将进行重启，可以切换到输入法测试是否成功。");
+        setTimeout(() => {
+          chrome.runtime.reload();
+        }, 2000);
+        break;
+      case "writeToSharedData":
+        console.log("Building");
+        imeHandler.updateData();
+        break;
+      case "writeFiles":
+      case "writeToBuild":
+      case "writeToUserDB":
+        alert("文件部署成功，请点击`同步此次修改`按钮。");
+        break;
     }
-  } 
+  }
 }
 
 main();

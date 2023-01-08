@@ -10,7 +10,7 @@
 
 :host {
   color: rgb(48, 57, 66);
-  font: 75% 'Segoe UI', Arial, Meiryo, 'MS PGothic', sans-serif;
+  font: 125% 'Segoe UI', Arial, Meiryo, 'MS PGothic', sans-serif;
   max-width:640px;
 }
 
@@ -323,4 +323,14 @@ embed {
 .keyboard_rows {
   margin: 4px 0;
   padding: 0 auto;
+}
+
+.desc {
+  color:rgba(0, 0, 0, 0.12);
+  padding-bottom: 7px;
+}
+
+.chunk {
+  padding: 7px 8px;
+  border: 1px solid #333;
 }

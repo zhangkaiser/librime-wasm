@@ -4,7 +4,8 @@
   "description": "中文双拼／拼音輸入法后台解析器，支持ChromeOS使用（需要与其他扩展一起使用,详细查看选项配置页面）",
   "manifest_version": 3,
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "permissions": [
     "unlimitedStorage",

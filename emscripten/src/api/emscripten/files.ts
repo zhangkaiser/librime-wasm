@@ -84,7 +84,13 @@ export async function writeFileFromFile(fs: typeof FS,file: File | IFile, path =
   }
 
   (fs as any).createPath("/", basePath, true, true);
-  FS.createDataFile(path, "", fileData, true, true, true);
+  try {
+    // First,delete file.
+    FS.unlink(path);
+  } catch(e) {
+    // pass.
+  }
+  FS.createDataFile(path, "", fileData, true, true, true);    
   return true;
 }
 

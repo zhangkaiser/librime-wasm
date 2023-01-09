@@ -14,9 +14,7 @@ declare global {
   var stopWorker: Function;
 }
 
-
 function registerFileHandler(imeHandler: IMEHandler) {
-
 
   let filePickerIDs = ['addSourceDataFiles', 'addBuiltDataDir'];
 
@@ -290,7 +288,6 @@ async function main() {
         }, 2000);
         break;
       case "writeToSharedData":
-        console.log("Building");
         imeHandler.updateData();
         break;
       case "writeFiles":

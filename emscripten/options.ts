@@ -14,36 +14,6 @@ declare global {
   var stopWorker: Function;
 }
 
-function registerFileHandler(imeHandler: IMEHandler) {
-
-  let filePickerIDs = ['addSourceDataFiles', 'addBuiltDataDir'];
-
-  filePickerIDs.forEach((pickerID) => {
-    let pickerElement = document.getElementById(pickerID) as HTMLInputElement;
-    pickerElement?.addEventListener("change", (ev) => {
-      
-      let files = (ev as any).target.files;
-      if (pickerID === "addSourceDataFiles") {
-        imeHandler.writeToSharedData(files);
-      } else if (pickerID === "addBuiltDataDir") {
-        imeHandler.writeToData(files);
-      }
-    });
-  });
-
-  let btns = ["build", "sync"];
-  btns.forEach((btnID) => {
-    let btnElement = document.getElementById(btnID);
-    btnElement?.addEventListener("click", (ev) => {
-      if (btnID === "build") {
-        imeHandler.updateData();
-      } else if (btnID === "sync") {
-        imeHandler.flushCache();
-      }
-    })
-  })
-}
-
 @customElement("options-page")
 class OptionsPage extends LitElement {
 
@@ -242,7 +212,7 @@ let container = document.getElementById("container");
 
 async function main() {
   render(html`
-  <options-page id=""></options-page>
+  <options-page id="options"></options-page>
   <textarea id="infos" rows="24"></textarea>
   `, container!);
 
@@ -263,8 +233,6 @@ async function main() {
     "writeToBuild",
     "writeToUserDB"
   ]) as InstanceType<typeof IMEHandler>;
-
-  registerFileHandler(imeHandler);
   
   let infos = document.getElementById("infos") as HTMLTextAreaElement;
   let printErr = getPrintWithTextareaElement(infos);

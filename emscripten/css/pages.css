@@ -1,3 +1,7 @@
+* {
+  margin: 0;
+  padding: 0;
+}
 .chos-group-div {
   margin-left: 20px;
   margin-right: 150px;
@@ -10,6 +14,7 @@
 
 :host {
   color: rgb(48, 57, 66);
+  background: #ebebeb;
   font: 125% 'Segoe UI', Arial, Meiryo, 'MS PGothic', sans-serif;
   max-width:640px;
 }
@@ -18,6 +23,34 @@
   display: inline;
   padding: 4px 7px;
   margin-right: 7px;
+}
+
+.info {
+  width: 100%;
+  height: 100px;
+  margin: 0 auto;
+  margin-top: 10px;
+  border-left: 0px;
+  border-right: 0px;
+  padding-left: 7px;
+  padding-right: 0px;
+  display: block;
+  background-color: black;
+  color: white;
+  font-family: 'Lucida Console', Monaco, monospace;
+}
+
+.category-bg {
+  background: #ffffff;
+}
+
+.category-title {
+  padding: 20px;
+  box-align: center;
+  align-items: center;
+  display: flex;
+  transition: 0.3s;
+  cursor: pointer;
 }
 
 input[type='checkbox'] {

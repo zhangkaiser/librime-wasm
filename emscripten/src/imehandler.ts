@@ -1,9 +1,9 @@
-import { DecoderModule, IComposition, IDecoder, IIMEHandler, IWindowProperties } from "./interfaces";
-import { kNormalKeyMap } from "./consts";
 import { isDir } from "src/api/common/files";
 import { writeFileAndDecompressionFromFileList, writeFileFromFile, writeFileFromFileList } from "src/api/emscripten/files";
 import { IMiniPort } from "src/api/common/port";
 
+import { DecoderModule, IComposition, IDecoder, IIMEHandler, IWindowProperties } from "./interfaces";
+import { kNormalKeyMap } from "./consts";
 export class IMEHandler implements IIMEHandler {
   port?: IMiniPort;
   

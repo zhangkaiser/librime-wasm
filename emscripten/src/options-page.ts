@@ -5,9 +5,9 @@ import { customElement, property, state } from "lit/decorators.js";
 import { IMessageObjectType } from "src/api/common/message";
 import { convertToPortInstance } from "src/api/common/port";
 import { getPrintWithTextareaElement } from "src/api/emscripten/io";
-import { IMEHandler } from "src/imehandler";
-import { BuiltinSchema } from "src/schema";
-import {getTempStrArr} from "src/utils/template-strings-array";
+import { IMEHandler } from "./imehandler";
+import { BuiltinSchema } from "./schema";
+import { getTempStrArr } from "src/utils/template-strings-array";
 
 import styles from "../css/pages.css";
 

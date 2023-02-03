@@ -1,5 +1,5 @@
 
-import { LitElement, html } from "lit";
+import { LitElement, html, css } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 import { IMessageObjectType } from "src/api/common/message";
@@ -7,18 +7,15 @@ import { convertToPortInstance } from "src/api/common/port";
 import { getPrintWithTextareaElement } from "src/api/emscripten/io";
 import { IMEHandler } from "src/imehandler";
 import { BuiltinSchema } from "src/schema";
+import {getTempStrArr} from "src/utils/template-strings-array";
 
 import styles from "../css/pages.css";
-
-declare global {
-  var stopWorker: Function;
-}
 
 @customElement("options-page")
 export class OptionsPage extends LitElement {
   #terminalElem?: HTMLTextAreaElement;
 
-  static styles = styles;
+  static styles = css(getTempStrArr(styles));
   
   @state({
     hasChanged(value, oldValue) {

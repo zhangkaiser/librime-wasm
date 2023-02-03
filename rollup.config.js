@@ -16,8 +16,7 @@ function resolveCSS() {
       if (id.endsWith(".css")) {
         let cssContent = fs.readFileSync(id);
         return `
-          import {css} from "lit";
-          export default css\`${cssContent}\`;
+          export default [\`${cssContent}\`];
         `;
       }
       return null;

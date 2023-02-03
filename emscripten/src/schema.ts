@@ -68,14 +68,12 @@ export class BuiltinSchema {
       newSchemaEntries.forEach((fileEntry) => {
         this.schemaDepFiles.add(fileEntry);
       });
-
     } else {
       let fileList: string[] = await fetch("./data/schemaEntries.json").then(res => res.json());
       let newFileList = fileList.filter(
         (filename) => lists.indexOf(filename.split(".")[0]) > -1
       );
       newFileList.forEach((filename) => this.schemaDepFiles.add("./data/schema/" + filename));
-
     }
 
   }
@@ -84,7 +82,7 @@ export class BuiltinSchema {
     let depFiles = isChromeExt ? await getExtFileList([...this.schemaDepFiles] as FileEntry[])
       : await getWebFileList([...this.schemaDepFiles] as string[]);
     
-      return ["data/build", depFiles];
+    return ["data/build", depFiles];
   }
 
 }

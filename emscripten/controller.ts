@@ -85,7 +85,9 @@ export class Controller extends Disposable {
     this.loadedWasm = () => postMessage({data: {type: 'loadedWasm', value: []}}); 
     
     imeHandler.port = {
-      postMessage,
+      postMessage: (args: any) => {
+        postMessage(args);
+      }
     }
 
     onmessage = (ev) => {

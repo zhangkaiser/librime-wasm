@@ -1,13 +1,37 @@
 <meta charset="UTF-8">
 
-RIME WASM: Rime Input Method Engine For Chrome OS/Web WASM Env with Emscripten.
+RIME WASM: Rime Input Method Engine For Chrome OS/Web runtime environment with Emscripten.
 ===
 
-当前支持状态描述：
+Example: [https://zhime.pinquapp.com/](https://zhime.pinquapp.com/)
+
+当前支持状态：
+
   - Chrome OS测试版本已经发布到[https://github.com/zhangkaiser/zhime/releases/tag/0.0.1](https://github.com/zhangkaiser/zhime/releases/tag/0.0.1)中，可进行安装测试。
-  - 内置了`几个输入法方案`，可以进行简单部署词库。
-  - 添加`自定义管理词库/方案`的文件管理功能，可以在`扩展选项页面`进行设置上传/更新/修改自己的输入方案和词库。
-  - 可在Chrome OS MV2下正常使用。
-  - Chrome OS MV3下由于RIME API中使用了`线程`当前在`Service Worker`的特性中会触发内存堆栈错误（已添加一个简单的逻辑来解决这个问题：是打开一个页面来运行RIME的依赖进行交互）。
-  - Web应用程序在所有情况下都可以正常使用。
-  - RIME原始用户自定义解决方案/已经构建长期使用的词库都可以支持到位（使用`lua脚本`转换的功能无法使用/完成构建）。
+  - 内置了`几个输入法常用的方案`，可以进行简单快速部署词库。
+  - 添加了简单地文件管理支持，可以轻松部署本地输入法方案和用户词库。
+
+## 使用说明
+
+- `Ctrl+ ~`快捷键 -> 输入法方案的切换（简／繁体切换、方案切换）。
+- `Shift`按键 -> 中英文切换。
+- 不支持使用`lua`语言的插件功能 -> 在构建时，方案配置文件中含有`lua字段`则无法完成构建。
+
+## 构建说明
+
+- 使用`node+emscripten`进行开发
+- 构建之前需要先配置`package.json`中的`set:env`属性值(emscripten安装依赖位置)。
+- librime需要的`第三方静态库`和所依赖的`头文件`已经生成完成，可以直接用于构建。
+
+```shell
+
+npm install
+npm run librime # 用来构建`librime.a`静态库文件
+npm run build # 用来构建`librime`运行时依赖文件
+```
+
+## 更多构建/开发参考
+
+- [https://github.com/ztl8702/librime](https://github.com/ztl8702/librime) 本仓库的构建主要参考了此项目
+- [https://github.com/LibreService/my_rime](https://github.com/LibreService/my_rime) 
+

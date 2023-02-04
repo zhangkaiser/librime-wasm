@@ -1,0 +1,30 @@
+{
+  "name": "Rime for chrome",
+  "version": "0.0.1",
+  "description": "中文双拼／拼音輸入法后台解析器，支持ChromeOS使用（需要与其他扩展一起使用,详细查看选项配置页面）",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "unlimitedStorage",
+    "storage",
+    "input"
+  ],
+  "input_components": [
+    {
+      "name": "Rime",
+      "descripten": "Rime for emscripten",
+      "id": "Rime",
+      "language": "zh",
+      "layouts": ["us"]
+    }
+  ],
+  "minimum_chrome_version": "102",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "options_page": "options.html",
+  "incognito": "split"
+}

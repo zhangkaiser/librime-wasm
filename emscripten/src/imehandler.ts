@@ -1,5 +1,5 @@
 import { isDir } from "src/api/common/files";
-import { writeFileAndDecompressionFromFileList, writeFileFromFile, writeFileFromFileList } from "src/api/emscripten/files";
+import { getBlobFile, getDataURLByFileReader, writeFileAndDecompressionFromFileList, writeFileFromFile, writeFileFromFileList } from "src/api/emscripten/files";
 import { IMiniPort } from "src/api/common/port";
 
 import { DecoderModule, IComposition, IDecoder, IIMEHandler, IWindowProperties } from "./interfaces";
@@ -260,6 +260,20 @@ export class IMEHandler implements IIMEHandler {
     this.checkDecoder();
     if (!this.#decoder) return false;
     return this.#decoder.update();
+  }
+
+  readBuiltFile() {
+    try {
+      return FS.readdir("/data/build");
+    } catch(e) {
+      return [];
+    }
+  }
+
+  async downloadFile(filepath: string) {
+    let blob = getBlobFile(FS, filepath);
+    let dataURL = await getDataURLByFileReader(blob);
+    return {url: dataURL.url, filepath};
   }
 
 }

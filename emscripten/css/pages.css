@@ -20,9 +20,33 @@
 }
 
 .btn-1 {
+  position: relative;
   display: inline;
   padding: 4px 7px;
   margin-right: 7px;
+}
+
+.btn-2 {
+  position: relative;
+  padding: 8px;
+  background-color: #fff;
+  border: 1px solid rgb(0, 69, 166);
+  border-radius: 5px;
+  cursor: pointer
+}
+.btn-3 {
+  position: relative;
+  cursor: pointer;
+  border: 0;
+}
+
+.hide-input {
+  opacity: 0;
+  bottom: 0;
+  left: 0;
+  top:  0;
+  right: 0;
+  position: absolute;
 }
 
 .info {
@@ -42,6 +66,7 @@
 
 .category-bg {
   background: #ffffff;
+  margin-bottom: 8px;
 }
 
 .category-title {
@@ -166,6 +191,7 @@ h3 {
 
 section {
   margin: 8px 0 24px;
+  padding-bottom: 16px;
   max-width: 600px;
   -webkit-padding-start: 20px;
 }
@@ -359,11 +385,23 @@ embed {
 }
 
 .desc {
-  color:rgba(0, 0, 0, 0.12);
+  color:rgba(0, 0, 0, 0.5);
+  font-size: 85%;
   padding-bottom: 7px;
 }
 
 .chunk {
   padding: 7px 8px;
   border: 1px solid #333;
+}
+
+.file-list {
+  padding: 8px;
+}
+
+.file-item {
+  border: 1px solid #ebebeb;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
 }

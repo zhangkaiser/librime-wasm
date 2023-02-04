@@ -16,7 +16,7 @@ function resolveCSS() {
       if (id.endsWith(".css")) {
         let cssContent = fs.readFileSync(id);
         return `
-          export default [\`${cssContent}\`];
+          export default \`${cssContent}\`;
         `;
       }
       return null;

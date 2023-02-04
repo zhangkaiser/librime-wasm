@@ -38,6 +38,7 @@ export class Controller extends Disposable {
     if (DecoderModule) {
       DecoderModule['onRuntimeInitialized'] = () => {
         this.loadedPromise = Promise.resolve();
+        this.loadedWasm();
       }
       DecoderModule['print'] = (...args) => this.print(...args);
       DecoderModule['printErr'] = (...args) => this.printErr(args);
@@ -67,6 +68,8 @@ export class Controller extends Disposable {
     );
   }
 
+  loadedWasm() {}
+
   registerWorkerListener() {
     if (!DecoderModule || DecoderModule['ENVIRONMENT_IS_PTHREAD']) return;
     if (!ENVIRONMENT_IS_WORKER) return;
@@ -78,6 +81,8 @@ export class Controller extends Disposable {
 
     this.print = (...args) => 
       postMessage({ data: {type: "print", value: args }});
+
+    this.loadedWasm = () => postMessage({data: {type: 'loadedWasm', value: []}}); 
     
     imeHandler.port = {
       postMessage,
@@ -102,6 +107,37 @@ export class Controller extends Disposable {
 
   registerChromeIMEEvent() {
     if (!this.isChromeIME) return;
+    
+    const ime = chrome.input.ime;
+
+    this.disposable = registerEventDisposable(ime.onActivate, imeHandler.onActivate.bind(imeHandler));
+    this.disposable = registerEventDisposable(ime.onDeactivated, imeHandler.onDeactivated.bind(imeHandler));
+    this.disposable = registerEventDisposable(ime.onFocus, imeHandler.onFocus.bind(imeHandler));
+    this.disposable = registerEventDisposable(ime.onBlur, imeHandler.onBlur.bind(imeHandler));
+    this.disposable = registerEventDisposable(ime.onCandidateClicked, imeHandler.onCandidateClicked.bind(imeHandler));
+    this.disposable = registerEventDisposable(ime.onReset, imeHandler.onReset.bind(imeHandler));
+
+    this.setCurrentEventName("onKeyEvent");
+    this.disposable = registerEventDisposable(ime.onKeyEvent, ((engineID: any, keyData: any, requestId: any): any => {
+      if (imeHandler.onKeyEvent(engineID, keyData, requestId)){
+        return true;
+      }
+    }) as any);
+
+    this.setCurrentEventName("onSurroundingTextChanged");
+    this.disposable = registerEventDisposable(ime.onSurroundingTextChanged, imeHandler.onSurroundingTextChanged.bind(imeHandler));
+
+    imeHandler.port = {
+      postMessage(obj: IMessageObjectType) {
+        let { type, value } = obj.data;
+        if (!Reflect.has(ime, type)) return console.error("No method", type);
+        if (type === "keyEventHandled") 
+          return ime.keyEventHandled(...(value[0] as [string, boolean]));
+        
+        (ime as any)[type](...value);
+
+      }
+    }
   }
 
   handleChromeExternalConnect(port: chrome.runtime.Port) {

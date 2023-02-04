@@ -17,7 +17,7 @@
     "build:workerDecoder": "npm run build:webDecoder -- -pthread -o ./out/worker/pthread.js -sPTHREAD_POOL_SIZE_STRICT=2 -sPTHREAD_POOL_SIZE=2",
     "build:noEvalDecoder": " npm run build:webDecoder -- -o ./out/background.js -sDYNAMIC_EXECUTION=0",
     "build:webDecoder": "npm run build:wasmdeps -- ./emscripten/decoder.cc -lembind -lidbfs.js --pre-js ./out/index.js --post-js emscripten/post.js",
-    "build:deps": "rimraf -r out && mkdir out && mkdir out/worker && rollup -c && cp -r ./emscripten/asset/* ./out/",
+    "build:deps": "rimraf out && mkdir out && mkdir out/worker && rollup -c && cp -r ./emscripten/asset/* ./out/",
     "librime": "npm run set:env && npm run emscripten:cmake-adapter && emmake make librime && npm run emscripten:cmake-revert",
     "emscripten:cmake-adapter": "bash ./emscripten/cmake-adapter.sh",
     "emscripten:cmake-revert": "bash ./emscripten/cmake-revert.sh",

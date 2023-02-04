@@ -87,10 +87,10 @@ export class OptionsPage extends LitElement {
         case "writeFiles":
         case "writeToBuild":
         case "writeToUserDB":
-          this.printLog("文件写入成功");
+          console.info(type, "文件写入成功");
           break;
         case "readBuiltFile":
-          this.buildFiles = (value[0] as string[]).filter((file) => ['.', '..'].indexOf(file) < -1);
+          this.buildFiles = (value[0] as string[]).filter((file) => ['.', '..'].indexOf(file) === -1);
           break;
         case "downloadFile":
           if (!value.length) return;

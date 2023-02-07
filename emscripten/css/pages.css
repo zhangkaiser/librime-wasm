@@ -19,6 +19,10 @@
   max-width:640px;
 }
 
+.btn-bg {
+  padding: 8px 0 16px;
+}
+
 .btn-1 {
   position: relative;
   display: inline;
@@ -192,8 +196,8 @@ h3 {
 section {
   margin: 8px 0 24px;
   padding-bottom: 16px;
+  padding-left: 20px;
   max-width: 600px;
-  -webkit-padding-start: 20px;
 }
 
 select {

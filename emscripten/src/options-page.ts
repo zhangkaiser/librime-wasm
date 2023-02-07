@@ -72,9 +72,12 @@ export class OptionsPage extends LitElement {
         case "flushCache":
           this.printLog("方案已部署成功，页面将进行重启，请手动测试是否部署成功。");
           setTimeout(() => {
-            chrome.runtime.reload();
-          }, 2000);
-          this.refresh();
+            typeof chrome === "object" && Reflect.has(chrome, "runtime") && Reflect.has(chrome.runtime, "reload") 
+              ? chrome.runtime.reload()
+              : this.refresh();
+          }, 1000);
+          alert("页面将重启");
+
           break;
         case "writeToSharedData":
           this.printLog("写入文件成功，开始添加构建依赖文件。");
@@ -196,7 +199,7 @@ export class OptionsPage extends LitElement {
   async createSchemasFromBuiltin() {
     if (!Object.keys(this.choosedSchemas).length) return alert("请选择方案!");
     this.showLoading();
-    this.printLog("加载依赖文件中,请等待");
+    this.printLog("加载依赖文件中");
     let names = [];
     for (let index in this.choosedSchemas) {
       let schemaItem = this.choosedSchemas[index];
@@ -210,11 +213,11 @@ export class OptionsPage extends LitElement {
     
     await this.setRequiredFiles();
 
-    this.printLog("加载方案文件,请等待");
+    this.printLog("加载方案依赖文件,请等待");
     let schemaDepFiles = await this.builtinSchema.getSchemaDepFiles();
     this.imeHandler.writeFiles(schemaDepFiles[0] as string, schemaDepFiles[1] as any as FileList);
     this.printLog("方案文件加载成功");
-    this.printLog("方案部署成功, 点击`保存并更新页面`按钮，就可以正常使用啦~");
+    this.printLog("依赖文件部署成功, 点击`保存并更新页面`按钮，就可以正常使用啦~");
     this.hideLoading();
   }
 
@@ -360,7 +363,7 @@ export class OptionsPage extends LitElement {
   <section hidden>
     <div class="">
       <button class="btn-2" type="button">
-        <span>修改方案数据库文件夹</span>
+        <span>修改用户方案数据库</span>
         <input class="hide-input" @change=${this.onFilePickerChange} type="file" id="updateUserDataFilesFromDirectory" webkitdirectory multiple>
       </button>
       <button class="btn-2">
@@ -369,7 +372,7 @@ export class OptionsPage extends LitElement {
       </button>
     </div>
     <div class="desc">
-      <p>1. 选择方案数据库文件夹：可以是相关方案的leveldb数据库文件userdb、opencc数据文件夹。</p>
+      <p>1. 修改用户方案数据库：可以是相关方案的leveldb数据库文件userdb、opencc数据文件夹。</p>
       <p>2. 修改方案配置文件：可以是已构建的方案配置文件(default.yaml, luna_pinyin.schema.yaml等)、方案的二进制文件(.bin)</p>
     </div>
     <div class="showlog">

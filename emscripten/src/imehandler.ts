@@ -62,6 +62,8 @@ export class IMEHandler implements IIMEHandler {
       }
 
       if (/^[A-Z]$/.test(keyEvent.key)) return true;
+    } else {
+      this._lastKeyIsShift = false;
     }
 
     return false;

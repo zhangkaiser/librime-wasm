@@ -11,7 +11,25 @@ interface ISchemaData {
 let _schemaData: Promise<ISchemaData>;
 let _schemaEntries: Promise<FileEntry[]>;
 
-let isChromeExt = typeof chrome == "object" && Reflect.has(chrome, "runtime");
+let isChromeExt = typeof chrome == "object" && Reflect.has(chrome, "tabs");
+
+export const builtinFileEntries = {
+  schemaManifest: "./data/schema.json",
+  defaultFile: "./data/default.yaml",
+  installationFile: "./data/installation.yaml",
+  userFile: "./data/user.yaml",
+  openccDir: "./data/opencc",
+  schemaDir: "./data/schema",
+  openccManifest: "./data/openccEntries.json",
+  schemasManifest: "./data/schemaEntries.json"
+}
+
+export function changeAssetsPath(dir: string) {
+  for (let entryName in builtinFileEntries) {
+    let entryPath = (builtinFileEntries as any)[entryName] as string;
+    (builtinFileEntries as any)[entryName] = entryPath.replace("./", "./" + dir + "/");
+  }
+}
 
 export class BuiltinSchema {
   requiredFiles: [string, File[]][] = [];
@@ -19,13 +37,13 @@ export class BuiltinSchema {
   
   getSchemaData() {
     if (!_schemaData) {
-      _schemaData = fetch("./data/schema.json").then((res) => res.json());
+      _schemaData = fetch(builtinFileEntries.schemaManifest).then((res) => res.json());
     }
     return _schemaData;
   }
 
   getDefaultFile(names: string | string[]) {
-    return fetch("./data/default.yaml").then((res) => res.text())
+    return fetch(builtinFileEntries.defaultFile).then((res) => res.text())
       .then((text) => {
         if (typeof names === "string") names = [names];
         let nameStr = names.map((name) => `- schema: ${name}`).join("\n  ");
@@ -37,14 +55,14 @@ export class BuiltinSchema {
 
   async getRequiredFiles() {
     let fileList = isChromeExt 
-      ? await getExtFileList(await getExtensionPackageFiles("./data/opencc"))
-      : await getWebFileList(await fetch("./data/openccEntries.json")
+      ? await getExtFileList(await getExtensionPackageFiles(builtinFileEntries.openccDir))
+      : await getWebFileList(await fetch(builtinFileEntries.openccManifest)
         .then(res => res.json())
-        .then((entries) => entries.map((filename: string) => "./data/opencc/" + filename)));
+        .then((entries) => entries.map((filename: string) => builtinFileEntries.openccDir + filename)));
       
     this.requiredFiles.push(["data/user/opencc", fileList]);
 
-    let userDepsList = ["./data/installation.yaml", "./data/user.yaml"];
+    let userDepsList = [builtinFileEntries.installationFile, builtinFileEntries.userFile];
 
     fileList = isChromeExt 
       ? await getExtFileList(await getExtensionPackageFiles(userDepsList))
@@ -61,7 +79,7 @@ export class BuiltinSchema {
 
     let depFiles;
     if (isChromeExt) {
-      let schemaEntries = await getExtensionPackageFiles("./data/schema");
+      let schemaEntries = await getExtensionPackageFiles(builtinFileEntries.schemaDir);
       let newSchemaEntries = schemaEntries.filter(
         (fileEntry) => lists.indexOf(fileEntry.name.split(".")[0]) > -1
       );
@@ -69,11 +87,11 @@ export class BuiltinSchema {
         this.schemaDepFiles.add(fileEntry);
       });
     } else {
-      let fileList: string[] = await fetch("./data/schemaEntries.json").then(res => res.json());
+      let fileList: string[] = await fetch(builtinFileEntries.schemasManifest).then(res => res.json());
       let newFileList = fileList.filter(
         (filename) => lists.indexOf(filename.split(".")[0]) > -1
       );
-      newFileList.forEach((filename) => this.schemaDepFiles.add("./data/schema/" + filename));
+      newFileList.forEach((filename) => this.schemaDepFiles.add(builtinFileEntries.schemaDir + filename));
     }
 
   }

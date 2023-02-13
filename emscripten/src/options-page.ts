@@ -226,7 +226,8 @@ export class OptionsPage extends LitElement {
 <div class="">
   <div>
     <span>
-      <p style="color: red;font-size: 12px;">在ChromeOS中部署方案时，请先关闭RIME的其他页面并且切换到其它输入法后再打开此配置项页面进行配置，否则可能无法成功配置。</p>
+      <p style="color: red;font-size: 14px;">在ChromeOS中部署方案时，请先关闭当前打开依赖页面，并切换到其它输入法，然后再打开此配置项页面进行配置，否则可能无法成功配置。</p>
+      <p style="color: red;font-size: 14px;">方案构建/上传成功之后请务必点击顶部的"保存并更新页面"按钮(并可在顶部黑框中查看方案部署状态)</p>
     </span>
   </div>
 </div>
@@ -372,8 +373,8 @@ export class OptionsPage extends LitElement {
       </button>
     </div>
     <div class="desc">
-      <p>1. 修改用户方案数据库：可以是相关方案的leveldb数据库文件userdb、opencc数据文件夹。</p>
-      <p>2. 修改方案配置文件：可以是已构建的方案配置文件(default.yaml, luna_pinyin.schema.yaml等)、方案的二进制文件(.bin)</p>
+      <p>1. 修改用户方案数据库：可以选择相关方案的leveldb数据库文件夹userdb、opencc文件夹。</p>
+      <p>2. 修改方案配置文件：可以选择已构建的方案配置文件(default.yaml, luna_pinyin.schema.yaml等)、方案的二进制文件(.bin)</p>
     </div>
     <div class="showlog">
       <button @click=${this.showFileList}>查看已部署文件列表</button>

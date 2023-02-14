@@ -13,6 +13,8 @@ import { BuiltinSchema } from "./schema";
 
 import styles from "../css/pages.css";
 
+export { changeAssetsPath } from "./schema";
+
 @customElement("options-page")
 export class OptionsPage extends LitElement {
   #terminalElem?: HTMLTextAreaElement;

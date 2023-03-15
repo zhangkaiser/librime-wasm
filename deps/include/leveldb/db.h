@@ -55,6 +55,9 @@ class DB {
   DB() { }
   virtual ~DB();
 
+  // Run after Opening the database.
+  virtual void MayBeCompaction() = 0;
+
   // Set the database entry for "key" to "value".  Returns OK on success,
   // and a non-OK status on error.
   // Note: consider setting options.sync = true.

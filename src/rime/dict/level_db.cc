@@ -63,7 +63,13 @@ struct LevelDbWrapper {
   leveldb::Status Open(const string& file_name, bool readonly) {
     leveldb::Options options;
     options.create_if_missing = !readonly;
-    return leveldb::DB::Open(options, file_name, &ptr);
+    leveldb::Status s = leveldb::DB::Open(options, file_name, &ptr);
+    if (s.ok()) {
+      // simple impl~.
+      for (int num = 0; num < 5; num++) {
+        ptr->MayBeCompaction();
+      }
+    }
   }
 
   void Release() {

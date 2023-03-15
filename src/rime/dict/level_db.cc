@@ -70,6 +70,7 @@ struct LevelDbWrapper {
         ptr->MayBeCompaction();
       }
     }
+    return s;
   }
 
   void Release() {
